@@ -20,7 +20,7 @@
   <p>версия Ruby: 1.9</p>
 
   <p>необходимые знания: класс, переменные и методы экземпляра класса,
-  интерполяция строк, консоль irb</p>
+  интерполяция строк, оператор <code>if</code>, метод <code>require</code>, консоль irb</p>
 </section><p>Блок является одной из ключевых конструкций языка Ruby, которую необходимо
 хорошо понимать и любить, поскольку использование блоков, наряду с грамотным
 именованием всех идентификаторов (переменных и т. д.) и вызовами методов
@@ -355,7 +355,7 @@
 выше про локальную область видимости, которую создает блок?</p>
 
     <p>Оказывается, нет. Даже если внутри блока происходит присвоение переменной, ранее
-объявленной не в этом блоке, Ruby не создает локальную переменную, а позволяет
+объявленной не в нем, Ruby не создает локальную переменную, а позволяет
 присвоить внешней переменной новое значение.</p>
 
     <div class="with-notes">
@@ -516,35 +516,42 @@ i равно <span class="Number">1</span>
 
   </section></section><section><h2>Нечто, похожее на блоки</h2>
 
-  <p>Существует целый ряд операторов в Ruby, в которых используются ключевые слова
-<code>do end</code> — это циклы. Хочется предостеречь от возможного заблуждения:
-в циклах <em>не используются</em> блоки, <code>do end</code> являются неотъемлемой составляющей
-конструкции этих операторов.</p>
+  <p>Существует ряд операторов в Ruby, в которых используются ключевые слова
+<code>do end</code> — это циклы <code>while</code>, <code>until</code>, <code>for</code>. Хочется предостеречь
+от возможного заблуждения: в них <em>не используются</em> блоки, <code>do end</code> являются
+неотъемлемой составляющей конструкции этих операторов.</p>
 
   <p>Во-первых, хотя и пишем</p>
 
-  <pre><code class="slush_poppies"><span class="Keyword">loop</span> <span class="Keyword">do</span>
-  puts <span class="String"><span class="String">"</span>Hello<span class="String">"</span></span>
-<span class="Keyword">end</span>
+  <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">for</span> i <span class="Keyword">in</span> [<span class="Number">1</span>, <span class="Number">2</span>, <span class="Number">3</span>] <span class="Keyword">do</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span>   print i
+:<span class="Number">003</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+<span class="Number">123</span> =&gt; [<span class="Number">1</span>, <span class="Number">2</span>, <span class="Number">3</span>]
 </code></pre>
 
-  <p>но нельзя писать</p>
+  <p>но не получится написать</p>
 
-  <pre><code class="slush_poppies"><span class="Keyword">loop</span> { puts <span class="String"><span class="String">"</span>Hello<span class="String">"</span></span> }
+  <pre><code class="slush_poppies"><span class="Keyword">for</span> i <span class="Keyword">in</span> [<span class="Number">1</span>, <span class="Number">2</span>, <span class="Number">3</span>] { print i }
 </code></pre>
 
-  <p>Во-вторых, операторы циклов не создают локальную область видимости!</p>
+  <p>Во-вторых, операторы циклов не создают локальную область видимости:</p>
 
   <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> x <span class="Operators">=</span> <span class="Number">0</span>
  =&gt; <span class="Number">0</span>
 :<span class="Number">002</span> <span class="Operators">&gt;</span> <span class="Keyword">while</span> x <span class="Operators">&lt;</span> <span class="Number">1</span> <span class="Keyword">do</span>
 :<span class="Number">003</span> <span class="Operators">&gt;</span>   inside <span class="Operators">=</span> <span class="String"><span class="String">"</span>Я внутри?<span class="String">"</span></span>
-:<span class="Number">004</span>?<span class="Operators">&gt;</span>   x <span class="Operators">=</span> x <span class="Operators">+</span> <span class="Number">1</span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>   x <span class="Operators">+=</span> <span class="Number">1</span>
 :<span class="Number">005</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
  =&gt; <span class="BuiltInConstant">nil</span>
 :<span class="Number">006</span> <span class="Operators">&gt;</span> puts inside
 Я внутри?
  =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+  <p>В то же время <code>loop</code>, реализующий бесконечный цикл, является системным методом,
+который как раз принимает блоки:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">loop</span> { print <span class="String"><span class="String">"</span>кольцокольцо<span class="String">"</span></span> }
 </code></pre>
 </section><section><h2>Использование блоков в повседневном коде</h2>
 
