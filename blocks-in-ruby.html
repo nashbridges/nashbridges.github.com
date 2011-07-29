@@ -4,24 +4,34 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <title>Блоки в Ruby</title>
-<meta content="Сходство и отличие блоков и методов в Ruby, почему блок является замыканием, примеры использования блоков.
+<meta content="Что общего и чем отличаются блоки и методы в Ruby, почему блок является замыканием, как используются блоки.
 " name="description">
 <meta content="2011, Andriy Malyshko, http://nashbridges.me" name="author">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<link href="/favicon.png" rel="shortcut icon" type="image/png">
+<link href="/favicon.ico" rel="shortcut icon">
 <link href="/stylesheets/site.css" rel="stylesheet">
 <script src="http://yandex.st/modernizr/1.7/modernizr.min.js"></script>
 </head>
 <body><div class="page-container">
-<header></header><article><h1>Блоки в Ruby</h1>
-
-<section class="metadata"><p>сложность материала: для начинающих</p>
-
-  <p>версия Ruby: 1.9</p>
-
-  <p>необходимые знания: класс, переменные и методы экземпляра класса,
-  интерполяция строк, оператор <code>if</code>, метод <code>require</code>, консоль irb</p>
-</section><p>Блок является одной из ключевых конструкций языка Ruby, которую необходимо
+<header><h1>Ruby и <dfn title="точка">.</dfn>
+</h1>
+<nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+</ul></nav></header><article><h1>Блоки в Ruby</h1>
+<section class="metadata"><p><span class="faded">сложность материала: </span>для начинающих</p>
+<p><span class="faded">версия Ruby</span>: 1.9</p>
+<p><span class="faded">необходимые знания</span>: класс, его атрибуты, создание объекта, интерполяция строк, оператор if, методы puts и require, консоль irb</p>
+<span class="faded">теги: </span><ul class="tags">
+<li><a rel="tag" href="/tag/ruby">Ruby</a></li>
+<li><a rel="tag" href="/tag/block">блок</a></li>
+<li><a rel="tag" href="/tag/closure">замыкание</a></li>
+<li><a rel="tag" href="/tag/yield">yield</a></li>
+<li><a rel="tag" href="/tag/iterator">итератор</a></li>
+<li><a rel="tag" href="/tag/loop">цикл</a></li>
+<li><a rel="tag" href="/tag/dsl">DSL</a></li>
+</ul></section><p>Блок является одной из ключевых конструкций языка Ruby, которую необходимо
 хорошо понимать и любить, поскольку использование блоков, наряду с грамотным
 именованием всех идентификаторов (переменных и т. д.) и вызовами методов
 по цепочке, делает ваш код читаемым настолько, насколько может быть читаема
@@ -240,7 +250,8 @@
 
   <p>Зная об этом, страховщики теперь могут писать:</p>
 
-  <pre><code class="slush_poppies">:<span class="Number">003</span> <span class="Operators">&gt;</span> spartak.<span class="FunctionName">say_hello</span> <span class="Keyword">do </span>|<span class="Variable">gladiator_name</span>|
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">003</span> <span class="Operators">&gt;</span> spartak.<span class="FunctionName">say_hello</span> <span class="Keyword">do </span>|<span class="Variable">gladiator_name</span>|
 :<span class="Number">004</span> <span class="Operators">&gt;</span>   puts <span class="String"><span class="String">"</span>ЗАВЕЩАНИЕ<span class="String">"</span></span>
 :<span class="Number">005</span>?<span class="Operators">&gt;</span>   puts <span class="String"><span class="String">"</span>Я, <span class="String"><span class="String">#{</span>gladiator_name<span class="String">}</span></span>, настоящим завещаю<span class="String">"</span></span>
 :<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
@@ -250,6 +261,9 @@
 Идущие на смерть приветствуют тебя!
  =&gt; <span class="BuiltInConstant">nil</span>
 </code></pre>
+    <aside><p><code>gladiator_name</code> — аргумент блока.</p>
+    </aside>
+</div>
 
   <p>Чтобы хорошо понять, что тут только что произошло, советую провести для себя
 некоторые параллели между блоком и методом. Забегая наперед, скажу, что блок
@@ -666,6 +680,11 @@ spartak <span class="Operators">=</span> <span class="LibraryClassType">Gladiato
   his.<span class="FunctionName">weight</span> <span class="Operators">=</span> <span class="Number">91</span>
 <span class="Keyword">end</span>
 </code></pre>
-  </section></section></article>
+  </section></section></article><footer><hr>
+<section class="feedback"><p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+</ul></nav><section class="signature"><p><a href="/author">Андрей Малышко</a>, 26.07.2011</p></section></footer>
 </div></body>
 </html>
