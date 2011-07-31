@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Ruby &#x438; &#x442;&#x43E;&#x447;&#x43A;&#x430;</title>
+  <id>http://nashbridges.me/</id>
+  <link href="http://nashbridges.me/"/>
+  <link href="http://nashbridges.me/feed.xml" rel="self"/>
+  <updated>2011-07-26T00:00:00+03:00</updated>
+  <author>
+    <name>Andriy Malyshko</name>
+    <email>mail@nashbridges.me</email>
+  </author>
+  <entry>
+    <title>&#x411;&#x43B;&#x43E;&#x43A;&#x438; &#x432; Ruby</title>
+    <link rel="alternate" href="http://nashbridges.me/blocks-in-ruby"/>
+    <id>http://nashbridges.me/blocks-in-ruby</id>
+    <published>2011-07-26T00:00:00+03:00</published>
+    <author>
+      <name>Andriy Malyshko</name>
+    </author>
+    <summary>&#x427;&#x442;&#x43E; &#x43E;&#x431;&#x449;&#x435;&#x433;&#x43E; &#x438; &#x447;&#x435;&#x43C; &#x43E;&#x442;&#x43B;&#x438;&#x447;&#x430;&#x44E;&#x442;&#x441;&#x44F; &#x431;&#x43B;&#x43E;&#x43A;&#x438; &#x438; &#x43C;&#x435;&#x442;&#x43E;&#x434;&#x44B; &#x432; Ruby, &#x43F;&#x43E;&#x447;&#x435;&#x43C;&#x443; &#x431;&#x43B;&#x43E;&#x43A; &#x44F;&#x432;&#x43B;&#x44F;&#x435;&#x442;&#x441;&#x44F; &#x437;&#x430;&#x43C;&#x44B;&#x43A;&#x430;&#x43D;&#x438;&#x435;&#x43C;, &#x43A;&#x430;&#x43A; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x443;&#x44E;&#x442;&#x441;&#x44F; &#x431;&#x43B;&#x43E;&#x43A;&#x438;.
+</summary>
+  </entry>
+</feed>
