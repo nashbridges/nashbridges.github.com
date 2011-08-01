@@ -34,7 +34,11 @@
 <li><a rel="tag" href="/tag/iterator">итератор</a></li>
 <li><a rel="tag" href="/tag/loop">цикл</a></li>
 <li><a rel="tag" href="/tag/dsl">DSL</a></li>
-</ul></section><p>Блок является одной из ключевых конструкций языка Ruby, которую необходимо
+</ul></section><section class="revision faded"><h3>Послемыслия и работа над ошибками</h3>
+
+  <ul>
+<li>добавлен раздел о poetry mode (01.08.11)</li>
+  </ul></section><p>Блок является одной из ключевых конструкций языка Ruby, которую необходимо
 хорошо понимать и любить, поскольку использование блоков, наряду с грамотным
 именованием всех идентификаторов (переменных и т. д.) и вызовами методов
 по цепочке, делает ваш код читаемым настолько, насколько может быть читаема
@@ -130,10 +134,12 @@
 определении метода аргументы или нет.</li>
   </ul>
 <p>Код может находиться внутри фигурных скобок <code>{ }</code>
-или ключевых слов <code>do end</code>. Рекомендации гласят, что первые
-стоит использовать, если код блока вместе с именем метода помещается
-на одной строке (вопрос стиля и вкуса, с точки зрения языка эти конструкции
-равнозначны).</p>
+или ключевых слов <code>do end</code>. Что именно использовать — решать вам, потому что
+обе конструкции описывают совершенно одинаковые по свойствам блоки.
+Обычно в фигурные скобки заключают код, состоящий из одной строки, при
+этом метод и его блок записывают на одной строке. Если код блока слишком длинный
+или объемный, вместо скобок на строке с вызовом метода оставляют <code>do</code>, а сам код пишут
+с новой строки с отступом и в конце «закрывают» его <code>end</code>'ом.</p>
 
   <p>Посмотрим, как это выглядит на практике:</p>
 
@@ -275,15 +281,10 @@
   <p>У метода есть имя. Назвали имя — вызвали код, описанный в определении метода.
 Назвали <code>yield</code> — вызвали код, описанный в блоке.</p>
 
-  <div class="with-notes">
-    <p>Метод можно вызывать с аргументами, которые указывают через запятую после его
-имени. Как видно из последнего примера, <code>yield</code> тоже можно вызывать с
+  <p>Метод может принимать аргументы, если они были указаны в его определении.
+Как видно из последнего примера, <code>yield</code> тоже можно вызывать с
 аргументами. И было бы логичным ожидать, что в самом блоке нужно как-то указать
 перечень принимаемых аргументов.</p>
-    <aside><p>В простых ситуациях Ruby прощает отсутствие скобок вокруг аргументов, что
-  передаются методу.</p>
-    </aside>
-</div>
 
   <p>Ожидания оправдываются во всём, кроме синтаксиса: вместо круглых скобок, как в
 методе, аргументы блока следует брать в прямые <code>| |</code>. После того, как аргумент объявлен,
@@ -570,6 +571,66 @@ i равно <span class="Number">1</span>
 
   <pre><code class="slush_poppies"><span class="Keyword">loop</span> { print <span class="String"><span class="String">"</span>кольцокольцо<span class="String">"</span></span> }
 </code></pre>
+</section><section><h2>Поэтичный стиль и блоки</h2>
+
+  <p>Поэтичным стилем (<em>poetry mode</em>) в Ruby называют стиль написания кода, при котором
+опускают скобки в тех местах, где анализатор может предположить их наличие, исходя
+из контекста. В основном это касается аргументов при вызове метода:</p>
+
+  <pre><code class="slush_poppies"><span class="FunctionName">puts</span>(<span class="String"><span class="String">"</span>Hello<span class="String">"</span></span>) <span class="Comment"><span class="Comment">#</span> классический стиль</span>
+puts <span class="String"><span class="String">"</span>Hello<span class="String">"</span></span>  <span class="Comment"><span class="Comment">#</span> poetry mode</span>
+</code></pre>
+
+  <h3>Разница между <code>{ }</code> и <code>do end</code>
+</h3>
+
+  <p>Фигурные скобки блоков имеют более высокий приоритет при разборе выражения, чем ключевые
+слова <code>do end</code>. На практике это имеет значение только и именно в тех случаях, когда
+используется поэтичный стиль.</p>
+
+  <p>Допустим, есть метод <code>kick_ass</code>, который принимает в качестве единственного
+аргумента имя того, кому мы хотим надрать задницу. Тогда запись</p>
+
+  <pre><code class="slush_poppies">kick_ass <span class="String"><span class="String">"</span>Джокер<span class="String">"</span></span> <span class="Keyword">do</span>
+  puts <span class="String"><span class="String">"</span>Ты будешь сидеть в камере психушки вечно.<span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>будет прочитана Ruby именно так, как вы задумали:</p>
+
+  <pre><code class="slush_poppies"><span class="FunctionName">kick_ass</span>(<span class="String"><span class="String">"</span>Джокер<span class="String">"</span></span>) <span class="Keyword">do</span>
+  puts <span class="String"><span class="String">"</span>Ты будешь сидеть в камере психушки вечно.<span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>А вот вызов метода с блоком в фигурных скобках</p>
+
+  <pre><code class="slush_poppies">kick_ass <span class="String"><span class="String">"</span>Бэтмен<span class="String">"</span></span> { puts <span class="String"><span class="String">"</span>Если умеешь что-то, не делай этого бесплатно.<span class="String">"</span></span> }
+</code></pre>
+
+  <p>Ruby поймет — внимание! — как:</p>
+
+  <pre><code class="slush_poppies"><span class="FunctionName">kick_ass</span>(<span class="String"><span class="String">"</span>Бэтмен<span class="String">"</span></span> { puts <span class="String"><span class="String">"</span>Если умеешь что-то, не делай этого бесплатно.<span class="String">"</span></span> })
+</code></pre>
+
+  <p>Фактически вы пытаетесь передать блок строке, и это, конечно же, приведет к
+ошибке. Вывод: ставьте скобки в сложных выражениях.</p>
+
+  <h3>Блок и хеш</h3>
+
+  <p>Так получилось, что у блока и хеша одинаковая нотация: фигурные скобки.
+Поэтому, если попытаться передать последний в качестве аргумента, не взяв в
+круглые скобки, Ruby примет его за блок, и выдаст ошибку. Если сохранять стиль,
+нужно опустить и фигурные скобки:</p>
+
+  <pre><code class="slush_poppies">kick_ass { <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>joker</span> =&gt; <span class="String"><span class="String">"</span>2 раза<span class="String">"</span></span>, <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>penguin</span> =&gt; <span class="String"><span class="String">"</span>1 раз<span class="String">"</span></span> } <span class="Comment"><span class="Comment">#</span> синтаксическая ошибка</span>
+kick_ass <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>joker</span> =&gt; <span class="String"><span class="String">"</span>2 раза<span class="String">"</span></span>, <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>penguin</span> =&gt; <span class="String"><span class="String">"</span>1 раз<span class="String">"</span></span>     <span class="Comment"><span class="Comment">#</span> так всё нормально</span>
+</code></pre>
+
+  <p>Наконец, если вам нужно передать методу и хеш, и блок, или используйте
+исключительно <code>do end</code>, или забудьте о поэтичном стиле и берите аргументы в
+скобки, как положено.</p>
+
 </section><section><h2>Использование блоков в повседневном коде</h2>
 
   <section><h3>Итераторы</h3>
