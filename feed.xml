@@ -4,11 +4,23 @@
   <id>http://nashbridges.me/</id>
   <link href="http://nashbridges.me/"/>
   <link href="http://nashbridges.me/feed.xml" rel="self"/>
-  <updated>2011-07-26T00:00:00+03:00</updated>
+  <updated>2011-08-05T00:00:00+03:00</updated>
   <author>
     <name>Andriy Malyshko</name>
     <email>mail@nashbridges.me</email>
   </author>
+  <entry>
+    <title>Gem &#x433;&#x43B;&#x430;&#x437;&#x430;&#x43C;&#x438; &#x43F;&#x43E;&#x442;&#x440;&#x435;&#x431;&#x438;&#x442;&#x435;&#x43B;&#x44F;</title>
+    <link rel="alternate" href="http://nashbridges.me/gem-for-end-user"/>
+    <id>http://nashbridges.me/gem-for-end-user</id>
+    <published>2011-08-05T00:00:00+03:00</published>
+    <updated>2011-08-05T00:00:00+03:00</updated>
+    <author>
+      <name>Andriy Malyshko</name>
+    </author>
+    <summary>&#x41A;&#x430;&#x43A;&#x43E;&#x432;&#x430; &#x438;&#x43D;&#x444;&#x440;&#x430;&#x441;&#x442;&#x440;&#x443;&#x43A;&#x442;&#x443;&#x440;&#x430; &#x43A;&#x43E;&#x434;&#x43E;&#x43E;&#x431;&#x43C;&#x435;&#x43D;&#x430; &#x432; Ruby, &#x43A;&#x430;&#x43A;&#x443;&#x44E; &#x440;&#x43E;&#x43B;&#x44C; &#x432; &#x43D;&#x435;&#x439; &#x438;&#x433;&#x440;&#x430;&#x44E;&#x442; Rubygems, bundler &#x438; RVM. &#x41A;&#x430;&#x43A; &#x441;&#x442;&#x43E;&#x438;&#x442; &#x442;&#x440;&#x430;&#x43A;&#x442;&#x43E;&#x432;&#x430;&#x442;&#x44C; &#x43D;&#x43E;&#x43C;&#x435;&#x440;&#x430; &#x432;&#x435;&#x440;&#x441;&#x438;&#x439;. &#x41A;&#x430;&#x43A; &#x43D;&#x435; &#x43F;&#x43E;&#x433;&#x438;&#x431;&#x43D;&#x443;&#x442;&#x44C; &#x43F;&#x43E;&#x434; &#x437;&#x430;&#x432;&#x430;&#x43B;&#x43E;&#x43C; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43D;&#x44B;&#x445; gem'&#x43E;&#x432;.
+</summary>
+  </entry>
   <entry>
     <title>&#x411;&#x43B;&#x43E;&#x43A;&#x438; &#x432; Ruby</title>
     <link rel="alternate" href="http://nashbridges.me/blocks-in-ruby"/>
