@@ -35,7 +35,27 @@
 <li><a rel="tag" href="/tag/rvm">RVM</a></li>
 <li><a rel="tag" href="/tag/dsl">DSL</a></li>
 <li><a rel="tag" href="/tag/github">Github</a></li>
-</ul></section><section class="revision faded"><h3>Послемыслия и работа над ошибками</h3>
+</ul></section><nav class="table-of-contents"><ul>
+<li><a href="#all-about-gems">Всё, что вам нужно знать о gem'ах</a></li>
+<li><ul>
+<li><a href="#naming">Минутка лингвистики</a></li>
+<li><a href="#history">История</a></li>
+<li><a href="#what-is-gem">Что такое gem?</a></li>
+<li><a href="#repository">Репозиторий</a></li>
+<li><a href="#how-gem-appears">Как возникают gem'ы?</a></li>
+<li><a href="#how-to-find">Как их искать?</a></li>
+<li><a href="#versions">Версии</a></li>
+<li><a href="#close-look-at-gem-install">Установка gem'а под микроскопом</a></li>
+</ul></li>
+<li><a href="#including-gem">Подключение gem'ов</a></li>
+<li><ul>
+<li><a href="#magical-require">Магический (?) require</a></li>
+<li><a href="#version-restriction">Уточнение версий</a></li>
+<li><a href="#rubygems-failure">Там, где бессильны Rubygems</a></li>
+<li><a href="#bundler">Bundler</a></li>
+<li><a href="#rvm">RVM как альтернатива?</a></li>
+</ul></li>
+</ul></nav><section class="revision faded"><h3>Послемыслия и работа над ошибками</h3>
 
   <ul>
 <li>уточнение к «активации» gem'ов при использовании Bundler (07.08.11)</li>
@@ -50,39 +70,38 @@
 распространения библиотек на Ruby, и помочь понять проблему использования
 на машине разных версий одного и того же gem'а.</p>
 
-<h2>Всё, что вам нужно знать о gem'ах</h2>
+<section><h2 id="all-about-gems">Всё, что вам нужно знать о gem'ах</h2>
 
-<h3>Минутка лингвистики</h3>
+  <section><h3 id="naming">Минутка лингвистики</h3>
 
-<p>«Gem» переводится с английского как «драгоценный камень». Дав формату такое
+    <p>«Gem» переводится с английского как «драгоценный камень». Дав формату такое
 название, авторы недвусмысленно указали на связь с рубином (Ruby — рубин).
 Произносится он как «джем» [ʤem], хотя в русскоговорящем сообществе нередко
 можно услышать «гем». Чтобы никого не смущать, я буду использовать
 оригинальное написание этого слова, т. е. gem.</p>
+  </section><section><h3 id="history">История</h3>
 
-<h3>История</h3>
-
-<p>С инициативой стандартного формата для распространения библиотек, написанных
+    <p>С инициативой стандартного формата для распространения библиотек, написанных
 на Ruby или C (т. н. <em>расширений</em>), в 2001 году выступил Райан Ливенгуд (Ryan
 Leavengood), он же является автором первой версии системы управления пакетами Rubygems.</p>
 
-<p>На тот момент рубисты использовали для этих целей <a href="http://raa.ruby-lang.org/">архив приложений</a>
+    <p>На тот момент рубисты использовали для этих целей <a href="http://raa.ruby-lang.org/">архив приложений</a>
 (<abbr title="Ruby application archive">RAA</abbr>), который, по сути, являлся
 каталогом ссылок. Для того, чтобы подключить в свой проект стороннюю библиотеку,
 требовалось:</p>
 
-<ol>
+    <ol>
 <li>Зайти на сайт RAA.</li>
-  <li>Через поиск найти страницу интересующего проекта.</li>
-  <li>Скачать по приведенной ссылке архив с файлами (при условии, что она
+      <li>Через поиск найти страницу интересующего проекта.</li>
+      <li>Скачать по приведенной ссылке архив с файлами (при условии, что она
 рабочая, т. к. вела на сторонний ресурс, например, домашнюю страницу
 разработчика).</li>
-  <li>Распаковать его куда-нибудь.</li>
-  <li>Перейти на страницы проектов, которые указаны в разделе «Зависимости».</li>
-  <li>Скачать оттуда конкретные версии библиотек-зависимостей.</li>
-  <li>Распаковать их куда-нибудь.</li>
-  <li>Подключить нужные файлы с помощью <code>require</code>, вспомнив, где находится «куда-нибудь».</li>
-</ol>
+      <li>Распаковать его куда-нибудь.</li>
+      <li>Перейти на страницы проектов, которые указаны в разделе «Зависимости».</li>
+      <li>Скачать оттуда конкретные версии библиотек-зависимостей.</li>
+      <li>Распаковать их куда-нибудь.</li>
+      <li>Подключить нужные файлы с помощью <code>require</code>, вспомнив, где находится «куда-нибудь».</li>
+    </ol>
 <p>Этот нудный процесс просто умолял «Автоматизируйте меня!» И надо сказать, Райан
 не стал в этих прериях первопроходцем. Системы управления пакетами программ уже
 имелись как в операционных системах (например, <a href="http://ru.wikipedia.org/wiki/Dpkg">dpkg</a> для
@@ -90,120 +109,115 @@ Leavengood), он же является автором первой версии
 языков программирования (<a href="http://www.cpan.org/">CPAN</a> для Perl). Сам Ливенгуд описывал
 Rubygems как помесь dpkg с jar архивами в Java.</p>
 
-<p>Тем не менее, проект не пошел в массы, до тех пор пока
+    <p>Тем не менее, проект не пошел в массы, до тех пор пока
 в 2003 году Рич Килмер (Rich Kilmer), Чад Фаулер (Chad Fowler), Девид Блек
 (David Black), Пол Бреннан (Paul Brannan) и Джим Вайрих (Jim Weirich) не написали
 свою версию системы управления пакетами. Название ей, с разрешения Ливенгуда,
 дали Rubygems, хотя от прежней библиотеки в ней не было ни строчки.</p>
 
-<div class="with-notes">
-  <p>Проект продолжает развиваться (в последнее время, не без скандалов) и для
+    <div class="with-notes">
+      <p>Проект продолжает развиваться (в последнее время, не без скандалов) и для
 официальной реализации Ruby, начиная с версии 1.9, является
 системной библиотекой (т. е. не требует явного подключения с помощью <code>require</code>).</p>
-  <aside><p>Официальная реализация Ruby написана на C.</p>
-  </aside>
+      <aside><p>Официальная реализация Ruby написана на C.</p>
+      </aside>
 </div>
+  </section><section><h3 id="what-is-gem">Что такое gem?</h3>
 
-<h3>Что такое gem?</h3>
-
-<div class="with-notes">
-  <p>Технически файл с расширением .gem представляет собой обычный архив, внутри которого находится
+    <div class="with-notes">
+      <p>Технически файл с расширением .gem представляет собой обычный архив, внутри которого находится
 файл спецификации и исходный код библиотеки в состоянии на момент релиза.</p>
-  <aside><p>Релизом обычно считают момент присвоения библиотеке нового номера
+      <aside><p>Релизом обычно считают момент присвоения библиотеке нового номера
   версии (<em>version bump</em>) с одновременной сборкой и публикацией gem'а.</p>
-  </aside>
+      </aside>
 </div>
 
-<p>В спецификации содержится достаточно много информации, но самое главное:</p>
+    <p>В спецификации содержится достаточно много информации, но самое главное:</p>
 
-<ul>
+    <ul>
 <li>название и версия данного gem'а;</li>
-  <li>названия и версии gem'ов, без которых работа будет невозможна (зависимости);</li>
-  <li>данные об авторе и описание gem'а.</li>
-</ul>
+      <li>названия и версии gem'ов, без которых работа будет невозможна (зависимости);</li>
+      <li>данные об авторе и описание gem'а.</li>
+    </ul>
 <p>Кроме библиотечных файлов, которые вы подключаете в коде своего приложения,
 в состав gem'а могут входить исполняемые файлы, которые после установки «видны»
 на системном уровне. На самом деле это не бинарные, а текстовые
 файлы — программы, написанные на Ruby. Когда вы запускаете их, <abbr title="операционная система">ОС</abbr>
 вызывает интерпретатор ruby, который и занимается их выполнением.
 Должно быть, самые известные исполняемые файлы — это <code>rails</code>, <code>rake</code> и <code>gem</code>.</p>
+  </section><section><h3 id="repository">Репозиторий</h3>
 
-<h3>Репозиторий</h3>
-
-<p>Никто не может вам запретить собрать свой gem, выложить на файлообменнике и дать
+    <p>Никто не может вам запретить собрать свой gem, выложить на файлообменнике и дать
 пользователям ссылку на скачивание. Gem'ы действительно можно устанавливать
 локально из файлов, но если бы все так поступали, то — снова здравствуй, 2001 год
 и ненавистная рутинная работа.</p>
 
-<div class="with-notes">
-  <p>К счастью, система Rubygems подразумевает наличие как минимум одного
+    <div class="with-notes">
+      <p>К счастью, система Rubygems подразумевает наличие как минимум одного
 централизованного, доступного 24 часа в сутки, хранилища gem'ов. Благодаря этому
 утилита <code>gem</code> может не только выполнить
 установку, запросив в репозитории одно лишь название gem'а, но и тут же
 автоматически доустановить все отсутствующие зависимости, исходя из спецификации.</p>
 
-  <aside><p>Исполняемый файл <code>gem</code> входит в поставку клиентской части Rubygems.</p>
-  </aside>
+      <aside><p>Исполняемый файл <code>gem</code> входит в поставку клиентской части Rubygems.</p>
+      </aside>
 </div>
 
-<p>На момент написания этой статьи gem'ы хранятся на Amazon S3, дирижированием ссылок
+    <p>На момент написания этой статьи gem'ы хранятся на Amazon S3, дирижированием ссылок
 занимается репозиторий <a href="http://rubygems.org/">rubygems.org</a>. Все его службы <a href="https://github.com/rubygems/rubygems.org">написаны на Ruby</a>.</p>
+  </section><section><h3 id="how-gem-appears">Как возникают gem'ы?</h3>
 
-<h3>Как возникают gem'ы?</h3>
-
-<p>Любой gem появляется как следствие борьбы с проблемой, с которой пришлось
+    <p>Любой gem появляется как следствие борьбы с проблемой, с которой пришлось
 столкнуться разработчику. Например, ему была поставлена задача организовать
 на сайте генерацию отчетов в формате Microsoft Word XP. Если готовых решений
 для этого не нашлось или не устроила их реализация, разработчик пишет такой
 генератор самостоятельно.</p>
 
-<p>Поскольку данная задача является типовой, хорошим тоном считается ее gem'ификация,
+    <p>Поскольку данная задача является типовой, хорошим тоном считается ее gem'ификация,
 под которой понимают выделение из общего приложения в отдельный проект кода,
 отвечающего за эту задачу. Внутри проекта структуру папок и наименования файлов
 приводят к <a href="http://chneukirchen.github.com/rps/">негласному стандарту</a>, а также создают спецификацию. Чтобы
 теперь назвать это gem'ом, достаточно упаковать папку с проектом с помощью
 утилиты <code>gem</code> и отправить на rubygems.org.</p>
 
-<p>Публикация gem'а влечет за собой несколько весьма положительных последствий:</p>
+    <p>Публикация gem'а влечет за собой несколько весьма положительных последствий:</p>
 
-<ul>
+    <ul>
 <li>резко упрощается повторное использование кода в своих же проектах;</li>
-  <li>происходит интенсивное тестирование за счет использования в чужих проектах, что
+      <li>происходит интенсивное тестирование за счет использования в чужих проектах, что
 позволяет рано обнаружить возможные ошибки;</li>
-  <li>обнаруженные ошибки могут исправить сторонние разработчики;</li>
-  <li>тешится собственное самолюбие.</li>
-</ul>
+      <li>обнаруженные ошибки могут исправить сторонние разработчики;</li>
+      <li>тешится собственное самолюбие.</li>
+    </ul>
 <div class="with-notes">
-  <p>Для того, чтобы другие разработчики могли исправить ошибки не только у себя,
+      <p>Для того, чтобы другие разработчики могли исправить ошибки не только у себя,
 но и у автора, исходники gem'а обязательно размещают на <a href="http://github.com/">Github'е</a>. Часто
 страница проекта на Гитхабе является и основным источником документации.</p>
 
-  <aside><p><a href="http://ru.wikipedia.org/wiki/Git">Git</a> и Github являются стандартом де-факто для Ruby разработчика.</p>
-  </aside>
+      <aside><p><a href="http://ru.wikipedia.org/wiki/Git">Git</a> и Github являются стандартом де-факто для Ruby разработчика.</p>
+      </aside>
 </div>
+  </section><section><h3 id="how-to-find">Как их искать?</h3>
 
-<h3>Как их искать?</h3>
-
-<p>К сожалению, формат спецификации gem'а не предусматривает указания его категорий
+    <p>К сожалению, формат спецификации gem'а не предусматривает указания его категорий
 или тегов, поэтому если вы пытаетесь найти gem под конкретные нужды, следует
 надеятся на то, что автор упомянул ключевые слова в описании. Поиск по описанию
 можно выполнять как на <a href="http://rubygems.org/">rubygems.org</a>, так и на
 <a href="https://github.com/search">Гитхабе</a> (выбрав Ruby в списке языков).</p>
 
-<p>Отдельно стоит упомянуть <a href="http://ruby-toolbox.com/">Ruby Toolbox</a>, где gem'ы
+    <p>Отдельно стоит упомянуть <a href="http://ruby-toolbox.com/">Ruby Toolbox</a>, где gem'ы
 рассортированы по категориям и популярности. Новые gem'ы добавляет туда вручную
 автор сайта, поэтому не стоит рассчитывать при поиске только на этот ресурс.</p>
+  </section><section><h3 id="versions">Версии</h3>
 
-<h3>Версии</h3>
-
-<p>Система Rubygems подразумевает, что разработчики придерживаются целесообразной
+    <p>Система Rubygems подразумевает, что разработчики придерживаются целесообразной
 политики назначения номеров версий gem'ов. Так, к сожалению, поступают не все,
 но понимать, в чем она заключается, нужно. Например, чтобы спать спокойно,
 когда происходит обновление чужого gem'а.</p>
 
-<p>Номер версии должен состоять из трех чисел, разделенных точками: <code>А.Б.В</code></p>
+    <p>Номер версии должен состоять из трех чисел, разделенных точками: <code>А.Б.В</code></p>
 
-<p>Число <code>В</code> увеличивается, когда меняется внутренняя реализация библиотеки
+    <p>Число <code>В</code> увеличивается, когда меняется внутренняя реализация библиотеки
 с сохранением первоначальной логики. Например, это может быть исправление текущих
 ошибок, могут появиться/быть убраны <code>private</code> методы. Алгоритм работы может быть
 переписан так, что библиотека
@@ -211,93 +225,91 @@ Rubygems как помесь dpkg с jar архивами в Java.</p>
 текущих пользователей gem'а: ничего по существу не добавилось, ничего у себя
 исправлять не надо.</p>
 
-<p>Число <code>Б</code> увеличивается (и обнуляет <code>В</code>), когда добавляется новый функционал.
+    <p>Число <code>Б</code> увеличивается (и обнуляет <code>В</code>), когда добавляется новый функционал.
 Например, могут появиться новые <code>public</code> методы или текущие могут начать принимать
 дополнительные аргументы. Обновившиеся до этой версии пользователи
 могут внести изменения в код своих приложений,
 чтобы начать использовать новые возможности, но могут ничего не трогать, и всё
 <em>должно</em> работать, как и раньше.</p>
 
-<p>Число <code>А</code> увеличивается (и обнуляет <code>Б</code> и <code>В</code>), когда происходят изменения, для которых
-невозможно обеспечить обратную совместимость. Если текущие пользователи перейдут
-на эту версию и ничего не изменят в своих приложениях, gem не будет работать или
+    <p>Число <code>А</code> увеличивается (и обнуляет <code>Б</code> и <code>В</code>), когда происходят изменения, для которых
+невозможно обеспечить обратную совместимость. Если перейти
+на эту версию и ничего не изменить в своем приложении, gem не будет работать или
 будет работать с ошибками. Такой переход может потребовать переписывания
 приложения с нуля.</p>
 
-<p>Из всего вышесказанного можно сделать вывод, что после версии 0.9.9 совсем
+    <p>Из всего вышесказанного можно сделать вывод, что после версии 0.9.9 совсем
 не обязательно должна появиться 1.0.0, вполне ожидаемой будет как раз версия
 0.9.10 или 0.10.0.</p>
+  </section><section><h3 id="close-look-at-gem-install">Установка gem'а под микроскопом</h3>
 
-<h3>Установка gem'а под микроскопом</h3>
-
-<p>Чтобы хорошо понять проблему подключения gem'ов в приложении, нужно разобраться,
+    <p>Чтобы хорошо понять проблему подключения gem'ов в приложении, нужно разобраться,
 в каком виде они хранятся на машине. Для этого давайте проследим, что происходит,
 когда вы набираете в командной строке</p>
 
-<pre><code class="slush_poppies">gem install rails
+    <pre><code class="slush_poppies">gem install rails
 </code></pre>
 
-<div class="with-notes">
-  <ol>
+    <div class="with-notes">
+      <ol>
 <li>Rubygems проверяет, установлен ли у вас этот gem и какой версии.</li>
-    <li>Ищет в текущей директории файл <code>rails-*.gem</code> (где * может быть любым номером
+        <li>Ищет в текущей директории файл <code>rails-*.gem</code> (где * может быть любым номером
 версии). Если такой файл найден, дальнейшая установка будет происходить
 прежде всего с его использованием.</li>
-    <li>Если gem файл не найден, считывает локальный список репозиториев (по умолчанию там
+        <li>Если gem файл не найден, считывает локальный список репозиториев (по умолчанию там
 находится только rubygems.org).</li>
-    <li>Запрашивает у них последнюю версию этого gem'а, а также названия и версии
+        <li>Запрашивает у них последнюю версию этого gem'а, а также названия и версии
 его зависимостей.</li>
-    <li>Если Rails у вас не установлены или в репозитории появилась более новая версия,
+        <li>Если Rails у вас не установлены или в репозитории появилась более новая версия,
 скачивает в папку <code>../cache</code> их gem файл. Если на момент запроса актуальной
 версией Ruby on Rails является 3.0.9, будет загружен <code>rails-3.0.9.gem</code>.</li>
-    <li>Параллельно проверяет, установлены ли у вас зависимости, и скачивает в <code>../cache</code>
+        <li>Параллельно проверяет, установлены ли у вас зависимости, и скачивает в <code>../cache</code>
 то, что нужно установить или обновить (загружаются
 <code>activesupport-3.0.9.gem</code>, <code>builder-2.1.2.gem</code> и т. д.).</li>
-    <li>Распаковывает загруженные файлы в папку <code>../gems</code>, названия подпапок будут совпадать
+        <li>Распаковывает загруженные файлы в папку <code>../gems</code>, названия подпапок будут совпадать
 с названиями gem файлов (например, там появится <code>/rails-3.0.9</code>).
 Подпапки со старыми версиями никуда не исчезают.</li>
-    <li>Откладывает (для себя) спецификации gem'ов в папку <code>../specifications</code>.</li>
-    <li>Запускает утилиту RDoc, которая извлекает из распакованных файлов комментарии
+        <li>Откладывает (для себя) спецификации gem'ов в папку <code>../specifications</code>.</li>
+        <li>Запускает утилиту RDoc, которая извлекает из распакованных файлов комментарии
 к исходному коду, формирует на их основе html файлы с документацией и складывает
 их в папку <code>../doc</code>.</li>
-    <li>Если в состав gem'ов входят исполняемые файлы, создает в папке <code>/usr/local/bin</code>
+        <li>Если в состав gem'ов входят исполняемые файлы, создает в папке <code>/usr/local/bin</code>
 одноименные исполняемые файлы для их запуска (подробнее об этом ниже). И
 действительно, там появляются <code>bundler</code>, <code>rails</code>, <code>thor</code> и т. д.</li>
-  </ol>
+      </ol>
 <aside><p>Для краткости я не пишу полные пути к папкам. В linux (без RVM) их стоит искать
   в <code>/usr/local/lib/ruby/gems/1.9.1/</code>. <br>
   В windows аналогичный путь будет, скорее всего, <code>/Ruby192/lib/ruby/gems/1.9.1/</code>.</p>
 
-    <p>Генерация документации во время установки — довольно затратная по времени операция.
+        <p>Генерация документации во время установки — довольно затратная по времени операция.
   Чтобы пропустить ее, <code>gem install</code> вызывают с параметрами <code>--no-ri</code> и <code>--no-rdoc</code>,
   например, "<code>gem install rails --no-ri --no-rdoc</code>".</p>
-  </aside>
+      </aside>
 </div>
 
-<p>Таким образом, команда <code>gem install</code> не выполняет никаких сверхъестественных операций: она только
+    <p>Таким образом, команда <code>gem install</code> не выполняет никаких сверхъестественных операций: она только
 скачивает и распаковывает. Более того, она никоим образом не взаимодействует с уже
 установленными gem'ами и не трогает окружение, т. е. эта
 команда сама по себе безвредна. Но можно ли считать <em>процедуру</em> установки
 абсолютно безопасной? Да, если речь идет о новых gem'ах, и нет, если подразумевается
 обновление уже установленных, поскольку это <em>косвенно</em> может привести к конфликтам
-(об этом ниже).</p>
+(об этом, как и о способах решения проблемы — ниже).</p>
 
-<p>В качестве бонуса: если вы из любопытства после установки заглянете в папку
+    <p>В качестве бонуса: если вы из любопытства после установки заглянете в папку
 <code>/usr/local/lib/ruby/gems/1.9.1/gems/rails-3.0.9</code>,
 то возможно, будете удивлены, что в ней <em>вообще</em> не содержится никакого кода.
 Так и есть, трижды героический gem Rails — всего лишь пустышка, тянущая за собой
 целый пучок зависимостей.</p>
+  </section></section><section><h2 id="including-gem">Подключение gem'ов</h2>
 
-<h2>Подключение gem'ов</h2>
-
-<h3>Магический (?) <code>require</code>
+  <section><h3 id="magical-require">Магический (?) <code>require</code>
 </h3>
 
-<p>Итак, вы понемногу осваиваете работу с gem'ами и решили поэкспериментировать с
-созданием PDF документов. Для этого решили установить <a href="http://prawn.majesticseacreature.com/">Prawn</a>:</p>
+    <p>Итак, вы понемногу осваиваете работу с gem'ами и решили поэкспериментировать с
+созданием PDF документов. Для этого хорошо подходит <a href="http://prawn.majesticseacreature.com/">Prawn</a>:</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies">you@your-comp:~$ gem install prawn
+    <div class="with-notes">
+      <pre><code class="slush_poppies">you@your-comp:~$ gem install prawn
 Fetching: Ascii85-1<span class="TagAttribute"><span class="TagAttribute">.</span>0</span><span class="TagAttribute"><span class="TagAttribute">.</span>1</span><span class="TagAttribute"><span class="TagAttribute">.</span>gem</span> (100%)
 Fetching: pdf-reader-0<span class="TagAttribute"><span class="TagAttribute">.</span>10</span><span class="TagAttribute"><span class="TagAttribute">.</span>0</span><span class="TagAttribute"><span class="TagAttribute">.</span>gem</span> (100%)
 Fetching: ttfunk-1<span class="TagAttribute"><span class="TagAttribute">.</span>0</span><span class="TagAttribute"><span class="TagAttribute">.</span>1</span><span class="TagAttribute"><span class="TagAttribute">.</span>gem</span> (100%)
@@ -309,32 +321,31 @@ Successfully installed prawn-0<span class="TagAttribute"><span class="TagAttribu
 4 gems installed
 </code></pre>
 
-  <aside><p>Prawn потянул за собой три зависимости.</p>
-  </aside>
+      <aside><p>Prawn потянул за собой три зависимости.</p>
+      </aside>
 </div>
 
-<p>На главной странице сайта Prawn есть пример использования этой библиотеки:</p>
+    <p>На главной странице сайта Prawn есть пример использования этой библиотеки:</p>
 
-<pre><code class="slush_poppies"><span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
+    <pre><code class="slush_poppies"><span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
 <span class="LibraryClassType">Prawn</span>::<span class="FunctionName">Document</span>.<span class="FunctionName">generate</span>(<span class="String"><span class="String">'</span>hello.pdf<span class="String">'</span></span>) <span class="Keyword">do </span>|<span class="Variable">pdf</span>|
   pdf.<span class="FunctionName">text</span>(<span class="String"><span class="String">"</span>Hello Prawn!<span class="String">"</span></span>)
 <span class="Keyword">end</span>
 </code></pre>
 
-<p>который замечательно создает документ с текстом. Вот так просто, оказывается,
-подключаются gem'ы.</p>
+    <p>Вот так просто, оказывается, подключаются gem'ы.</p>
 
-<p>Но понимаете ли вы, что делает строка <code>require 'prawn'</code>?</p>
+    <p>Но понимаете ли вы, что делает строка <code>require 'prawn'</code>?</p>
 
-<p>Для начала давайте вспомним, что <code>require</code> — метод, который загружает в память
+    <p>Для начала давайте вспомним, что <code>require</code> — метод, который загружает в память
 и выполняет содержимое файла (если он не был загружен ранее). Когда не
 указан полный путь к файлу (наш случай), Ruby всё равно пытается обнаружить файл. Поскольку
 физически невозможно во время каждого <code>require</code> просматривать <em>все</em> имеющиеся
 папки на компьютере, область его поиска ограничена только несколькими.</p>
 
-<p>Список просматриваемых папок Ruby хранит в глобальной переменной-массиве <code>$LOAD_PATH</code>:</p>
+    <p>Список просматриваемых папок Ruby хранит в глобальной переменной-массиве <code>$LOAD_PATH</code>:</p>
 
-<pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ irb
+    <pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ irb
 <span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> puts <span class="Variable"><span class="Variable">$</span>LOAD_PATH</span>
 <span class="String"><span class="String">/</span></span><span class="String">urs</span><span class="String"><span class="String">/</span></span>local<span class="Operators">/</span>lib<span class="Operators">/</span>ruby<span class="Operators">/</span>site_ruby<span class="Operators">/</span><span class="Number">1.9</span>.<span class="Number">1</span>
 <span class="String"><span class="String">/</span></span><span class="String">urs</span><span class="String"><span class="String">/</span></span>local<span class="Operators">/</span>lib<span class="Operators">/</span>ruby<span class="Operators">/</span>site_ruby<span class="Operators">/</span><span class="Number">1.9</span>.<span class="Number">1</span><span class="Operators">/</span>i686<span class="Operators">-</span>linux
@@ -347,25 +358,31 @@ Successfully installed prawn-0<span class="TagAttribute"><span class="TagAttribu
  =&gt; <span class="BuiltInConstant">nil</span>
 </code></pre>
 
-<p>Теперь поищите на машине папку со свежеустановленным Prawn (вспоминайте пошаговую
+    <p>Теперь поищите на машине папку со свежеустановленным Prawn (вспоминайте пошаговую
 процедуру установки). Она тут: <code>/usr/local/lib/ruby/gems/1.9.1/gems/prawn-0.11.1</code>,
 в ней еще одна папка — <code>/lib</code>, где и лежит искомый файл — <code>prawn.rb</code>.
 Как же так получается, пути <code>../prawn-0.11.1/lib/</code> в массиве <code>$LOAD_PATH</code> нет,
 но Ruby ухитряется найти файл?</p>
 
-<p>Дело в том, что Rubygems во время загрузки (а в Ruby 1.9 это происходит
+    <p>Дело в том, что Rubygems во время загрузки (а в Ruby 1.9 это происходит
 автоматически) перезаписывают родной метод <code>require</code> своим.</p>
 
-<p>Когда Ruby не находит файл в текущих папках области поиска (как в
-нашем случае), возбуждается стандартная ошибка. Но Rubygems перехватывают ее, и
+    <div class="with-notes">
+      <p>Когда Ruby не находит файл в текущих папках области поиска (как в
+случае с <code>prawn.rb</code>), возбуждается стандартная ошибка. Но Rubygems перехватывают ее, и
 затем по названию файла пытаются определить,
 к какому gem'у он относится. Если это удается сделать, пути к этому gem'у и его
 зависимостям добавляются в <code>$LOAD_PATH</code>. Gem помечается как
 <em>активированный</em>, после чего снова вызывается родной <code>require</code>, который, конечно же,
 находит и загружает файл.</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
+      <aside><p>Как видите, за удобство приходится платить двойным выполнением <code>require</code>,
+  а ведь это влияет на время загрузки приложения.</p>
+      </aside>
+</div>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">003</span>:<span class="Number">0</span><span class="Operators">&gt;</span> puts <span class="Variable"><span class="Variable">$</span>LOAD_PATH</span>
 <span class="String"><span class="String">/</span></span><span class="String">usr</span><span class="String"><span class="String">/</span></span>local<span class="Operators">/</span>lib<span class="Operators">/</span>ruby<span class="Operators">/</span>gems<span class="Operators">/</span><span class="Number">1.9</span>.<span class="Number">1</span><span class="Operators">/</span>gems<span class="Operators">/</span><span class="Variable">Ascii85</span><span class="Operators">-</span><span class="Number">1.0</span>.<span class="Number">1</span><span class="Operators">/</span>lib
@@ -383,25 +400,24 @@ Successfully installed prawn-0<span class="TagAttribute"><span class="TagAttribu
  =&gt; <span class="BuiltInConstant">nil</span>
 </code></pre>
 
-  <aside><p>Сравните <code>$LOAD_PATH</code> до и после <code>require</code>.</p>
-  </aside>
+      <aside><p>Сравните <code>$LOAD_PATH</code> до и после <code>require</code>.</p>
+      </aside>
 </div>
+  </section><section><h3 id="version-restriction">Уточнение версий</h3>
 
-<h3>Уточнение версий</h3>
-
-<p>Представьте теперь, что вы написали замечательно работающее
+    <p>Представьте теперь, что вы написали замечательно работающее
 приложение, в котором используется Prawn. Через некоторое время gem обновился,
 и последней версией на сайте значится уже 0.12.0. Дух экспериментаторства
 умирает только после программиста, поэтому вы решаетесь попробовать новую версию.</p>
 
-<p>После установки на вашей машине находятся уже две папки: <code>../prawn-0.11.1/lib/</code> и
+    <p>После установки на вашей машине находятся уже две папки: <code>../prawn-0.11.1/lib/</code> и
 <code>../prawn-0.12.0/lib/</code>, и когда в приложении вызывается <code>require 'prawn'</code>,
 Rubygems должны принять решение, какую версию gem'а активировать.</p>
 
-<p>По умолчанию активируется самая последняя версия.</p>
+    <p>По умолчанию активируется самая последняя версия.</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> puts <span class="LibraryClassType">Gem</span>.<span class="FunctionName">loaded_specs</span>
 {<span class="String"><span class="String">"</span>prawn<span class="String">"</span></span>=&gt;<span class="Comment"><span class="Comment">#</span>&lt;Gem::Specification name=prawn version=0.12.0&gt;,</span>
@@ -411,27 +427,27 @@ Rubygems должны принять решение, какую версию gem
  =&gt; <span class="BuiltInConstant">nil</span>
 </code></pre>
 
-  <aside><p><code>Gem</code> — глобальный объект, создаваемый Rubygems после загрузки. <code>loaded_specs</code> —
+      <aside><p><code>Gem</code> — глобальный объект, создаваемый Rubygems после загрузки. <code>loaded_specs</code> —
   хеш со спецификациями активированных gem'ов.</p>
-  </aside>
+      </aside>
 </div>
 
-<p>Одна беда: как оказалось, ваше приложение с новой версией не работает. Никто не
+    <p>Одна беда: как оказалось, ваше приложение с новой версией не работает. Никто не
 застрахован от ошибок, и похоже, в версию 0.12.0 они проникли. Что делать?
 Самый простой вариант — удалить эту версию с помощью команды <code>gem uninstall</code>.
 К сожалению, это не всегда возможно. Например, вы хотите сообщить авторам Prawn
 о возникшей ошибке, и свежая версия вам необходима для тестирования и отладки.</p>
 
-<div class="with-notes">
-  <p>Для решения таких проблем в Rubygems есть метод для принудительной активации
+    <div class="with-notes">
+      <p>Для решения таких проблем в Rubygems есть метод для принудительной активации
  — <code>gem</code>. Он принимает строковые аргументы: название gem'а и его версию.</p>
 
-  <aside><p>Не путайте утилиту <code>gem</code> и метод <code>gem</code>.</p>
-  </aside>
+      <aside><p>Не путайте утилиту <code>gem</code> и метод <code>gem</code>.</p>
+      </aside>
 </div>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.11.1<span class="String">'</span></span>
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.11.1<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
@@ -443,193 +459,195 @@ Rubygems должны принять решение, какую версию gem
  =&gt; <span class="BuiltInConstant">nil</span>
 </code></pre>
 
-  <aside><p>Как вы успели заметить, методы <code>require</code> и <code>gem</code> обычно записывают в поэтичном стиле
+      <aside><p>Как вы успели заметить, методы <code>require</code> и <code>gem</code> обычно записывают в поэтичном стиле
   (без скобок).</p>
-  </aside>
+      </aside>
 </div>
 
-<p>Запись версии <code>'0.11.1'</code> эквивалентна <code>'= 0.11.1'</code>, это самое радикальное
+    <div class="with-notes">
+      <p>Запись версии <code>'0.11.1'</code> эквивалентна <code>'= 0.11.1'</code>, это самое радикальное
 соответствие: или указанная версия, или я за себя не отвечаю! Существуют и более либеральные
 варианты:</p>
 
-<ul>
+      <aside><p>Несмотря на то, что я столько времени уделяю вопросу версий, единственной
+  гарантией работоспособности вашего приложения могут служить только тесты.</p>
+      </aside>
+</div>
+
+    <ul>
 <li>
 <code>gem 'prawn', '&gt;= 0.11.1'</code> — вы уверены, что ваше приложение будет безошибочно
 работать с версией не ниже 0.11.1 (например, 2.3.5 вполне сойдет). Это
  <em>очень</em> рискованное утверждение, как вы успели убедиться с версией 0.12.0;</li>
-  <li>
+      <li>
 <code>gem 'prawn', '&gt;= 0.11.1', '&lt; 0.12.0'</code> — вы уверены, что ваше приложение
  будет нормально работать с версиями не ниже 0.11.1, но насчет 0.12.0 у вас уже сомнения
  (а вот 0.11.97 — сгодится). Обычно подобного ограничения вполне достаточно,
  чтобы застраховать себя от ошибок при обновлении gem'а;</li>
-  <li>
+      <li>
 <code>gem 'prawn', '~&gt; 0.11.1'</code> — этот оптимистичный сперматозоид (который западные
  товарищи окрестили <a href="http://twiddlewakka.com/">твидльваккой</a>) является просто сокращенной записью
  предыдущего выражения.</li>
-</ul>
+    </ul>
 <p>Когда версия указывается без третьего числа, Rubygems подставляют туда ноль.
 Таким образом, вызов метода</p>
 
-<pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>~&gt; 0.14<span class="String">'</span></span>
+    <pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>~&gt; 0.14<span class="String">'</span></span>
 </code></pre>
 
-<p>эквивалентен</p>
+    <p>делает то же, что и</p>
 
-<pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&gt;= 0.14.0<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&lt; 0.15.0<span class="String">'</span></span>
+    <pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&gt;= 0.14.0<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&lt; 0.15.0<span class="String">'</span></span>
 </code></pre>
 
-<p>Если gem был активирован, попытка активации другой версии этого же gem'а
+    <p>Если gem был активирован, попытка активации другой версии этого же gem'а
 приведет к ошибке:</p>
 
-<pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.11.1<span class="String">'</span></span>
+    <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.11.1<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.12.0<span class="String">'</span></span>
 <span class="LibraryClassType">Gem</span>::<span class="FunctionName">LoadError</span>: can<span class="String"><span class="String">'</span>t activate prawn (= 0.12.0) for [], already activated</span>
 <span class="String">prawn-0.11.1 for []</span>
 </code></pre>
 
-<p>И это разумное решение: файлы версии 0.11.1 уже могут быть прочитаны, соответствущие
-классы созданы, и попытка перегрузить их классами с измененными логикой и
-набором методов, скорее всего, приведет к краху приложения.</p>
+    <p>И это разумное решение: менять версии в запущенном приложении бессмысленно и опасно.</p>
+  </section><section><h3 id="rubygems-failure">Там, где бессильны Rubygems</h3>
 
-<h3>Там, где бессильны Rubygems</h3>
-
-<p>Определенный период времени метод <code>gem</code> вполне справлялся со своими
+    <p>Было время, когда метод <code>gem</code> вполне справлялся со своими
 обязанностями. Его использовали во вторых версиях Ruby on Rails, и все были
 счастливы.</p>
 
-<p>Но росло число публикуемых gem'ов, в том числе тех, которые из-за своей
+    <p>Но росло число публикуемых gem'ов, в том числе тех, которые из-за своей
 популярности использовались в качестве зависимостей других gem'ов. И нередкой
 стала ситуация, когда при установке двух gem'ов их зависимости пересекались.</p>
 
-<p>Представьте, что на вашей машине установлены следующие gem'ы:</p>
+    <p>Представьте, что на вашей машине установлен следующий набор:</p>
 
-<pre><code class="slush_poppies">actionpack (<span class="Number">2.3</span>.<span class="Number">5</span>)
+    <pre><code class="slush_poppies">actionpack (<span class="Number">2.3</span>.<span class="Number">5</span>)
 rack (<span class="Number">1.1</span>.<span class="Number">2</span>, <span class="Number">1.0</span>.<span class="Number">1</span>)
 thin (<span class="Number">1.2</span>.<span class="Number">11</span>)
 </code></pre>
 
-<p>В зависимостях <code>actionpack</code> и <code>thin</code> фигурирует <code>rack</code>:</p>
+    <p>В зависимостях <code>actionpack</code> и <code>thin</code> фигурирует <code>rack</code>:</p>
 
-<pre><code class="slush_poppies">actionpack (<span class="Number">2.3</span>.<span class="Number">5</span>)
+    <pre><code class="slush_poppies">actionpack (<span class="Number">2.3</span>.<span class="Number">5</span>)
   rack <span class="Operators">~</span><span class="Operators">&gt;</span> <span class="Number">1.0</span>.<span class="Number">0</span>
 
 thin (<span class="Number">1.2</span>.<span class="Number">11</span>)
   rack <span class="Operators">&gt;=</span> <span class="Number">1.0</span>.<span class="Number">0</span>
 </code></pre>
 
-<p>Теперь подключим эти gem'ы:</p>
+    <p>Теперь подключим эти gem'ы:</p>
 
-<pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>actionpack<span class="String">'</span></span>
+    <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>actionpack<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>thin<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 </code></pre>
 
-<p>Активируя <code>actionpack</code>, Rubygems спускаются к зависимостям, находят
+    <p>Активируя <code>actionpack</code>, Rubygems спускаются к зависимостям, находят
 в установленных gem'ах подходящую под указанное ограничение версию <code>rack</code> (1.0.1)
 и активируют ее. Когда подходит очередь активации <code>thin</code>, его зависимость
 удовлетворяется автоматически.</p>
 
-<p>Но что, если порядок подключения будет обратным?</p>
+    <p>Но что, если порядок подключения будет обратным?</p>
 
-<pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>thin<span class="String">'</span></span>
+    <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>thin<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>actionpack<span class="String">'</span></span>
 <span class="Comment"> <span class="Comment">#</span> Ошибка! Уже активирован rack 1.1.2!</span>
 </code></pre>
 
-<p>Ошибка возникает из-за того, что нестрогая зависимость <code>rack</code> (&gt;= 1.0.0)
+    <p>Ошибка возникает из-за того, что нестрогая зависимость <code>rack</code> (&gt;= 1.0.0)
  позволяет Rubygems задействовать его самую свежую версию — 1.1.2. Эта версия
 совершенно не устраивает <code>actionpack</code>, но <code>rack</code> уже активирован, назад дороги нет!</p>
 
-<p>И чем больше на вашей машине установлено различных версий одного и того же gem'а,
+    <p>И чем больше на вашей машине установлено различных версий одного и того же gem'а,
 тем больше вероятность подобных накладок. Но ведь зоопарк разных версий — нормальная
 практика: на одном сервере могут быть запущены одновременно как приложение,
 написанное два года назад, так и позавчерашнее, и понятно, что они не будут
 работать с одинаковыми версиями одного и того же gem'а.</p>
 
-<p>Кроме этой проблемы обязательно стоит упомянуть вопрос запуска исполняемых файлов.</p>
+    <p>Кроме этой проблемы обязательно стоит упомянуть вопрос запуска исполняемых файлов.</p>
 
-<p>Исполняемые файлы, идущие в комплекте с gem'ом, находятся в подпапке <code>/bin</code>
+    <p>Исполняемые файлы, идущие в комплекте с gem'ом, находятся в подпапке <code>/bin</code>
 конкретной версии gem'а. Если у вас на машине установлен <code>rake</code> версии 0.9.2, исполняемый
 файл <code>rake</code> будет находиться в папке <code>/usr/local/lib/ruby/gems/1.9.1/gems/rake-0.9.2/bin/</code>.</p>
 
-<div class="with-notes">
-  <p><abbr title="операционная система">ОС</abbr> не может (по аналогии с Rubygems)
+    <div class="with-notes">
+      <p><abbr title="операционная система">ОС</abbr> не может (по аналогии с Rubygems)
 просматривать абсолютно все папки в поисках файла, когда вы даете команду на его
 запуск, и ограничивается определенным списком, который хранится в переменной
 <code>PATH</code>.</p>
 
-  <aside><p>В linux эту переменную можно изменить в файлах <code>/etc/environment</code> и <code>.bashrc</code>,
+      <aside><p>В linux эту переменную можно изменить в файлах <code>/etc/environment</code> и <code>~/.bashrc</code>,
   в windows — через "Свойства системы &gt; Переменные среды".</p>
-  </aside>
+      </aside>
 </div>
 
-<pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ echo <span class="Variable"><span class="Variable">$</span>PATH</span>
+    <pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ echo <span class="Variable"><span class="Variable">$</span>PATH</span>
 <span class="String"><span class="String">/</span></span><span class="String">usr</span><span class="String"><span class="String">/</span></span>local<span class="Operators">/</span>sbin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>usr<span class="Operators">/</span>local<span class="Operators">/</span>bin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>usr<span class="Operators">/</span>sbin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>usr<span class="Operators">/</span>bin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>sbin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>bin<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>usr<span class="Operators">/</span>games
 </code></pre>
 
-<p>Именно поэтому Rubygems помещает в одну из «видимых» системе папок (в нашем
+    <p>Именно поэтому Rubygems помещают в одну из «видимых» системе папок (в нашем
 случае в <code>/usr/local/bin</code>) свои исполняемые
 файлы, единственная цель которых — запустить одноименный файл из поставки gem'а.</p>
 
-<p>Но если на машине установлено несколько версий gem'а, Rubygems должны понять,
+    <p>Но если на машине установлено несколько версий gem'а, Rubygems должны понять,
 какая именно вам нужна. Задать версию можно, указав в качестве первого
 параметра, перед и после номера должны идти символы подчеркивания (например,
 <code>_3.0.7_</code>, это сделано, чтобы избежать возможного конфликта с числовыми параметрами).</p>
 
-<p>Важно понимать, что если версия не указана, то всегда будет запущена
-<em>самая последняя</em> исполняемого файла из установленных на компьютере, независимо от того,
+    <p>Важно понимать, что если версия не указана, то всегда будет запущена
+<em>самая последняя</em> версия исполняемого файла из установленных на компьютере, независимо от того,
 в каком проекте/папке вы находитесь.</p>
 
-<p>Например, если у вас установлены <code>rake</code> версии 0.8.7 и 0.9.2:</p>
+    <p>Например, если у вас установлены <code>rake</code> версии 0.8.7 и 0.9.2:</p>
 
-<pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ rake <span class="Operators">-</span><span class="Variable">V</span>
+    <pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ rake <span class="Operators">-</span><span class="Variable">V</span>
 rake, version <span class="Number">0.9</span>.<span class="Number">2</span>
 you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ rake _0.<span class="Number">8.</span>7_ <span class="Operators">-</span><span class="Variable">V</span>
 rake, version <span class="Number">0.8</span>.<span class="Number">7</span>
 </code></pre>
 
-<p>То есть, проблема запуска файлов определенных версий решается, но мягко
+    <p>Да, задача запуска файлов определенных версий решена, но мягко
 говоря, не совсем элегантно (например, вам нужно постоянно помнить, в каком
 проекте какую версию <code>rails</code> вы используете, да еще и указывать ее в команде).</p>
+  </section><section><h3 id="bundler">Bundler</h3>
 
-<h3>Bundler</h3>
-
-<div class="with-notes">
-  <p>Конечно, по-хорошему все эти проблемы надо было решать в самих Rubygems. Но
+    <div class="with-notes">
+      <p>Конечно, по-хорошему всё это надо было исправлять в самих Rubygems. Но
 что-то у них там не срослось, и начали возникать альтернативные менеджеры gem'ов.
 Самым популярным на данный момент является <a href="http://gembundler.com/">Bundler</a>, поскольку он
 входит в поставку и заведует gem'ами третьих Ruby on Rails.</p>
 
-  <aside><p>Кроме Bundler'a есть <a href="https://github.com/defunkt/rip">rip</a>, а также мятежный Rubygems форк <a href="https://github.com/slimgems/slimgems">SlimGems</a></p>
-  </aside>
+      <aside><p>Кроме Bundler'a есть <a href="https://github.com/defunkt/rip">rip</a>, а также мятежный Rubygems форк <a href="https://github.com/slimgems/slimgems">SlimGems</a></p>
+      </aside>
 </div>
 
-<p>Bundler — обычный gem, и перед тем, как использовать, его нужно вначале установить
+    <p>Bundler — обычный gem, и перед тем, как использовать, его нужно вначале установить
 (если вы устанавливали Rails v. 3.x.x, это уже сделано). Кроме этого, в своем
 приложении, вы должны подключить</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies"><span class="Keyword">require</span> <span class="String"><span class="String">'</span>bundler/setup<span class="String">'</span></span>
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">require</span> <span class="String"><span class="String">'</span>bundler/setup<span class="String">'</span></span>
 </code></pre>
 
-  <aside><p>В Rails — уже есть :)</p>
-  </aside>
+      <aside><p>В Rails — уже есть :)</p>
+      </aside>
 </div>
 
-<div class="with-notes">
-  <p>Сердце Bundler'а — это файл <code>Gemfile</code>, который создают в корне проекта, и где
+    <div class="with-notes">
+      <p>Сердце Bundler'а — это файл <code>Gemfile</code>, который создают в корне проекта, и где
 прописывают версии gem'ов, которые проекту нужны. По сути это обычная программа
 на Ruby, выглядеть она может так:</p>
 
-  <aside><p><code>Gemfile</code> — еще один пример DSL, о котором шла речь в <a href="http://nashbridges.me/blocks-in-ruby">статье про блоки</a>.</p>
-  </aside>
+      <aside><p><code>Gemfile</code> — еще один пример DSL, о котором шла речь в <a href="http://nashbridges.me/blocks-in-ruby">статье про блоки</a>.</p>
+      </aside>
 </div>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies">source <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>rubygems</span>
+    <div class="with-notes">
+      <pre><code class="slush_poppies">source <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>rubygems</span>
 
 gem <span class="String"><span class="String">"</span>nokogiri<span class="String">"</span></span>, <span class="String"><span class="String">"</span>1.5.0<span class="String">"</span></span>
 gem <span class="String"><span class="String">"</span>sinatra<span class="String">"</span></span>,  <span class="String"><span class="String">"</span>~&gt; 1.2.6<span class="String">"</span></span>
@@ -642,129 +660,125 @@ group <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</spa
 <span class="Keyword">end</span>
 </code></pre>
 
-  <aside><p>Метод <code>source</code> задает адрес репозитория — rubygems.org.</p>
+      <aside><p>Метод <code>source</code> задает адрес репозитория — rubygems.org.</p>
 
-    <p>Метод <code>gem</code> очень похож на родной Rubygem'овский, но это метод самого Bundler'а.</p>
-  </aside>
+        <p>Метод <code>gem</code> очень похож на родной Rubygem'овский, но это метод самого Bundler'а.</p>
+      </aside>
 </div>
 
-<p>Gem'ы можно объединять в группы, чтобы потом с ними было удобно работать скопом.
+    <p>Gem'ы можно объединять в группы, чтобы потом с ними было удобно работать скопом.
 Те, что не входят ни в какую группу, заносятся в <code>:default</code> (в нашем случае это
 <code>nokogiri</code> и <code>sinatra</code>). Названия группам можно давать, вообщем-то, любые, но
 обычно хватает стандартных <code>:development</code> и <code>:test</code>.</p>
 
-<p><strong>Первое</strong>, с чем отлично справляется Bundler — установка в одну команду. Можете
+    <p><strong>Первое</strong>, с чем отлично справляется Bundler — установка в одну команду. Можете
 забыть про <code>gem install</code> для каждого gem'а. Если они прописаны в <code>Gemfile</code>,
 достаточно перейти в директорию проекта и набрать там</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies">bundle install
+    <div class="with-notes">
+      <pre><code class="slush_poppies">bundle install
 </code></pre>
 
-  <aside><p>Или просто <code>bundle</code></p>
-  </aside>
+      <aside><p>Или просто <code>bundle</code></p>
+      </aside>
 </div>
 
-<p>Версии установленных gem'ов будут соответствовать требованиям <code>Gemfile</code>
+    <p>Версии установленных gem'ов будут соответствовать требованиям <code>Gemfile</code>
 (ужесточение версий абсолютно такое же, как у Rubygem'овского метода <code>gem</code>). Если
 номер версии не указан, будет установлена последняя стабильная версия.</p>
 
-<p>Можно исключить установку gem'ов определенной группы (например, на сервере):</p>
+    <p>Можно исключить установку gem'ов определенной группы (например, на сервере):</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies">bundle install <span class="Operators">-</span><span class="Operators">-</span>without development test
+    <div class="with-notes">
+      <pre><code class="slush_poppies">bundle install <span class="Operators">-</span><span class="Operators">-</span>without development test
 </code></pre>
 
-  <aside><p>Не будут установлены <code>wirble</code>, <code>rspec</code>, <code>ffaker</code>.</p>
-  </aside>
+      <aside><p>Не будут установлены <code>wirble</code>, <code>rspec</code>, <code>ffaker</code>.</p>
+      </aside>
 </div>
 
-<p><strong>Второе</strong>, что выполняет Bundler — разрешение конфликтов версий. Во время установки
+    <p><strong>Второе</strong>, что выполняет Bundler — разрешение конфликтов версий. Во время установки
 gem'ов он строит дерево их зависимостей, находит возможные пересечения и подбирает
-такие версии, при которых все-все, даже глубоко спрятанные gem'ы
+такие версии, при которых все-все, даже глубоко спрятанные, gem'ы
 будут довольны (а не как в примере с <code>rack</code>). Результат этой работы он
 сохраняет в файл <code>Gemfile.lock</code>.</p>
 
-<p>В момент подключения <code>require 'bundler/setup'</code> Bundler добавляет в массив $LOAD_PATH
+    <p>В момент подключения <code>require 'bundler/setup'</code> Bundler добавляет в массив $LOAD_PATH
 пути к версиям gem'ов, определенным в <code>Gemfile.lock</code>, поэтому, когда вы начинаете
 подключать непосредственно gem'ы проекта, Ruby находит нужные файлы, и система
 активации Rubygems не задействуется.</p>
 
-<p><code>Gemfile.lock</code> также служит слепком gem-экосистемы вашего проекта на момент, когда
+    <p><code>Gemfile.lock</code> также служит слепком gem-экосистемы вашего проекта на момент, когда
 «всё работало», который можно безбоязненно переносить между системами. Важно
 понимать, что он всегда имеет бóльшую силу, чем <code>Gemfile</code>. Даже если вы укажете
 в последнем строгие версии gem'ов, не забывайте, что у них, скорее всего,
 существуют собственные зависимости, версии которых просчитаны и зафиксированы
 в <code>Gemfile.lock</code>.</p>
 
-<p><strong>Третье</strong>, что дает Bundler — простой и гарантированный доступ к исполняемым файлам
+    <p><strong>Третье</strong>, что дает Bundler — простой и гарантированный доступ к исполняемым файлам
 нужной версии. Если в <code>Gemfile</code> прописано <code>gem "rails", "3.0.5"</code> и вы находитесь
 в папке с проектом, то команда <code>bundle exec</code> запускает именно то, что нужно:</p>
 
-<pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span><span class="String"><span class="String">/</span></span><span class="String">projects</span><span class="String"><span class="String">/one</span></span>$ bundle exec rails <span class="Operators">-</span>v
+    <pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span><span class="String"><span class="String">/</span></span><span class="String">projects</span><span class="String"><span class="String">/one</span></span>$ bundle exec rails <span class="Operators">-</span>v
 <span class="Variable">Rails</span> <span class="Number">3.0</span>.<span class="Number">5</span>
 </code></pre>
 
-<p>Если <code>bundle exec</code> для вас слишком длинно, можно выполнить</p>
+    <p>Если <code>bundle exec</code> для вас слишком длинно, можно выполнить</p>
 
-<pre><code class="slush_poppies">bundle install <span class="Operators">-</span><span class="Operators">-</span>binstubs
+    <pre><code class="slush_poppies">bundle install <span class="Operators">-</span><span class="Operators">-</span>binstubs
 </code></pre>
 
-<p>тогда Bundler создаст в проекте папку <code>/bin</code> с исполняемыми файлами, которые
+    <p>тогда Bundler создаст в проекте папку <code>/bin</code> с исполняемыми файлами, которые
 тоже будут «привязаны» к версии в <code>Gemfile.lock</code>, но запуск будет чуть короче:</p>
 
-<pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span><span class="String"><span class="String">/</span></span><span class="String">projects</span><span class="String"><span class="String">/one</span></span>$ bin<span class="Operators">/</span>rails <span class="Operators">-</span>v
+    <pre><code class="slush_poppies">you<span class="Variable"><span class="Variable">@</span>your</span><span class="Operators">-</span>comp<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span><span class="String"><span class="String">/</span></span><span class="String">projects</span><span class="String"><span class="String">/one</span></span>$ bin<span class="Operators">/</span>rails <span class="Operators">-</span>v
 <span class="Variable">Rails</span> <span class="Number">3.0</span>.<span class="Number">5</span>
 </code></pre>
 
-<div class="with-notes">
-  <p><strong>Четвертое</strong>, что позволяет делать Bundler — установку, минуя репозитории
+    <div class="with-notes">
+      <p><strong>Четвертое</strong>, что позволяет делать Bundler — установку, минуя репозитории
 Rubygems, прямо из репозитория Git. Вот так можно использовать самую свежую (на
 момент запуска <code>bundle install</code>) версию Rails:</p>
 
-  <pre><code class="slush_poppies">gem <span class="String"><span class="String">"</span>rails<span class="String">"</span></span>, <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>git</span> =&gt; <span class="String"><span class="String">"</span>https://github.com/rails/rails.git<span class="String">"</span></span>
+      <pre><code class="slush_poppies">gem <span class="String"><span class="String">"</span>rails<span class="String">"</span></span>, <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>git</span> =&gt; <span class="String"><span class="String">"</span>https://github.com/rails/rails.git<span class="String">"</span></span>
 </code></pre>
 
-  <aside><p>На машине должен быть установлен дистрибутив Git.</p>
-  </aside>
+      <aside><p>На машине должен быть установлен дистрибутив Git.</p>
+      </aside>
 </div>
 
-<p><strong>Пятое</strong>, что можно сделать с помощью Bundler — массовый <code>require</code> одной или
+    <p><strong>Пятое</strong>, что можно сделать с помощью Bundler — массовый <code>require</code> одной или
 нескольких групп gem'ов. Так поступают в Rails:</p>
 
-<div class="with-notes">
-  <pre><code class="slush_poppies"><span class="LibraryClassType">Bundler</span>.<span class="FunctionName">require</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>default</span>, <span class="LibraryClassType">Rails</span>.<span class="FunctionName">env</span>)
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="LibraryClassType">Bundler</span>.<span class="FunctionName">require</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>default</span>, <span class="LibraryClassType">Rails</span>.<span class="FunctionName">env</span>)
 </code></pre>
 
-  <aside><p><code>Rails.env</code> принимает значения <code>:development</code>, <code>:test</code> или <code>:production</code>.</p>
-  </aside>
+      <aside><p><code>Rails.env</code> принимает значения <code>:development</code>, <code>:test</code> или <code>:production</code>.</p>
+      </aside>
 </div>
+  </section><section><h3 id="rvm">RVM как альтернатива?</h3>
 
-<h3>RVM</h3>
-
-<p><abbr title="Ruby version manager">RVM</abbr> создавался, прежде всего, с целью
+    <p><abbr title="Ruby version manager">RVM</abbr> создавался, прежде всего, с целью
 быстрого и удобного переключения между <a href="http://beginrescueend.com/interpreters/">версиями и реализациями Ruby</a>.</p>
 
-<p>В RVM существует понятие <em>gemset</em>, его стоит расценивать как фальшивое окружение,
+    <p>В RVM существует понятие <em>gemset</em>, его стоит расценивать как фальшивое окружение,
 которое RVM подсовывает Rubygems, выдавая его за системное. Создавая
-gemset, вы создаете новую папку, в которую можно складывать новые gem'ы, поэтому
-вы абсолютно уверены, что они изолированы от ранее установленных.</p>
+gemset, вы создаете новую папку, в которую можно складывать новые gem'ы, будучи
+абсолютно уверенным, что они изолированы от ранее установленных.</p>
 
-<p>Если создавать отдельный gemset под каждый проект, изоляция gem'ов в рамках
-проекта означает, что, теоретически, вам
+    <p>Если создавать отдельный gemset под каждый проект, изоляция gem'ов означает, что, теоретически, вам
 не нужно использовать ни родной метод <code>gem</code> Rubygems, ни Bundler для ограничения
 версий, потому что внутри проекта будет установлена и доступна единственная версия
 каждого из gem'ов. Аналогично отпадает проблема с исполняемыми файлами.</p>
 
-<p>На практике же отказ от Bundler'а сразу потребует ручной установки одинаковых
+    <p>На практике же отказ от Bundler'а сразу потребует ручной установки одинаковых
 версий gem'ов на всех машинах: у каждого из разработчиков, на каждом сервере.
 Любая попытка автоматизировать этот процесс приведет к дублированию функционала
 Bundler'а.</p>
 
-<p>А уж если использовать Bundler, применение gemset'ов RVM'а будет лишней, ничего
-не дающей, надстройкой.</p>
-
-</article><footer><hr>
+    <p>А уж если использовать Bundler, применение gemset'ов RVM'а будет лишней надстройкой.</p>
+  </section></section></article><footer><hr>
 <section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
 </div>
 <p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
