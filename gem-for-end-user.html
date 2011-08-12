@@ -506,8 +506,8 @@ Rubygems должны принять решение, какую версию gem
     <pre><code class="slush_poppies"><span class="FunctionName">irb</span>(main):<span class="Number">001</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.11.1<span class="String">'</span></span>
  =&gt; <span class="BuiltInConstant">true</span>
 <span class="FunctionName">irb</span>(main):<span class="Number">002</span>:<span class="Number">0</span><span class="Operators">&gt;</span> gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>0.12.0<span class="String">'</span></span>
-<span class="LibraryClassType">Gem</span>::<span class="FunctionName">LoadError</span>: can<span class="String"><span class="String">'</span>t activate prawn (= 0.12.0) for [], already activated</span>
-<span class="String">prawn-0.11.1 for []</span>
+<span class="LibraryClassType">Gem</span>::<span class="FunctionName">LoadError</span>: can <span class="Operators">not</span> activate prawn (<span class="Operators">=</span> <span class="Number">0.12</span>.<span class="Number">0</span>) <span class="Keyword">for</span> [], already activated
+prawn<span class="Operators">-</span><span class="Number">0.11</span>.<span class="Number">1</span> <span class="Keyword">for</span> []
 </code></pre>
 
     <p>И это разумное решение: менять версии в запущенном приложении бессмысленно и опасно.</p>

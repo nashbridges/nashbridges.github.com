@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Проки и лямбды</title>
+<meta content="Процедурный объект в Ruby, его область применения. Чем отличаются Proc.new и lambda.
+" name="description">
+<meta content="2011, Andriy Malyshko, http://nashbridges.me" name="author">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="/favicon.ico" rel="shortcut icon">
+<link href="/stylesheets/site.css" rel="stylesheet">
+<link href="/feed.xml" rel="alternate" title="Лента новостей" type="application/atom+xml">
+<link href="http://nashbridges.me/procs-and-lambdas" rel="canonical">
+<script src="http://yandex.st/modernizr/1.7/modernizr.min.js"></script>
+</head>
+<body>
+<div class="page-container">
+<header><h1>Ruby и <dfn title="точка">.</dfn>
+</h1>
+<nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav></header><article><h1>Проки и лямбды</h1>
+<section class="metadata"><p><span class="faded">сложность материала: </span>для начинающих</p>
+<p><span class="faded">версия Ruby</span>: 1.9</p>
+<p><span class="faded">необходимые знания</span>: блоки, класс, объявление и вызов методов, методы puts, return, each и map, оператор case, хеш, интерполяция строк, консоль irb</p>
+<span class="faded">теги: </span><ul class="tags">
+<li><a rel="tag" href="/tag/ruby">Ruby</a></li>
+<li><a rel="tag" href="/tag/block">блок</a></li>
+<li><a rel="tag" href="/tag/lambda">лямбда</a></li>
+<li><a rel="tag" href="/tag/closure">замыкание</a></li>
+<li><a rel="tag" href="/tag/dsl">DSL</a></li>
+<li><a rel="tag" href="/tag/sinatra">Sinatra</a></li>
+<li><a rel="tag" href="/tag/yield">yield</a></li>
+</ul></section><nav class="table-of-contents"><ul>
+<li><a href="#yield-is-not-enough">Не yield'ом единым</a></li>
+<li><ul><li><a href="#startup">Сервис «Который час?»</a></li></ul></li>
+<li><a href="#proc-objects">Процедурные объекты</a></li>
+<li><a href="#lambda-vs-proc">Лямбда против прока</a></li>
+<li><ul>
+<li><a href="#formal-criterion">Формальные признаки</a></li>
+<li><a href="#parameters">Аргументы</a></li>
+<li><a href="#return">return</a></li>
+</ul></li>
+<li><a href="#catch-block">Достать блок</a></li>
+<li><ul>
+<li><a href="#frozen-yield">Замороженный yield</a></li>
+<li><a href="#proc-new">Proc.new</a></li>
+<li><a href="#pseudoparameter">Псевдоаргумент</a></li>
+</ul></li>
+<li><a href="#playing-with-closures">Игры с замыканиями</a></li>
+<li><a href="#short-lambda">Короткая лямбда</a></li>
+<li><a href="#application">Процедурные объекты на практике</a></li>
+<li><ul><li><a href="#active-support-hooks">Длительный старт в Ruby on Rails</a></li></ul></li>
+</ul></nav><p>Как только ваш вестибулярный аппарат освоился с <a href="http://nashbridges.me/blocks-in-ruby#passing-control">прыжками между методом и
+блоком</a> при участии <code>yield</code>, пора переходить к более
+серьезным вещам.</p>
+
+<p>В этой статье рассказывается о том, как можно хранить блоки и зачем это делают.</p>
+
+<section><h2 id="yield-is-not-enough">Не <code>yield</code>'ом единым</h2>
+
+  <p>Возможно, в далеких неизведанных галактиках существует планета, в которой отдать
+управление блоку в Ruby можно только с помощью ключевого слова <code>yield</code>.
+Разработчики в этом мире очень несчастны. Каждый раз, когда они передают блок
+методу, его тут же надо где-то в методе и оприходовать. Всё в ужасной спешке,
+знаете ли. А представляете, что произойдет, если забыл написать <code>yield</code>?
+Метод вызван, а блок его пропал, исчез в черной пучине цифрового ничто!</p>
+
+  <p>Но может, зря они там нервничают? Ведь в Ruby полно примеров, когда блок
+используется тут же, прямо в методе, которому он передается. Взять, например,
+популярный итератор <code>map</code>:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"> :<span class="Number">001</span> <span class="Operators">&gt;</span> wtf <span class="Operators">=</span> <span class="String"><span class="String">%w"</span> ) ( -&gt; ] <span class="String">"</span></span>
+  =&gt; [<span class="String"><span class="String">"</span>)<span class="String">"</span></span>, <span class="String"><span class="String">"</span>(<span class="String">"</span></span>, <span class="String"><span class="String">"</span>-&gt;<span class="String">"</span></span>, <span class="String"><span class="String">"</span>]<span class="String">"</span></span>]
+ :<span class="Number">002</span> <span class="Operators">&gt;</span> smiles <span class="Operators">=</span> wtf.<span class="FunctionName">map</span> { |<span class="Variable">el</span>| <span class="String"><span class="String">'</span>:<span class="String">'</span></span> <span class="Operators">+</span> el }
+  =&gt; [<span class="String"><span class="String">"</span>:)<span class="String">"</span></span>, <span class="String"><span class="String">"</span>:(<span class="String">"</span></span>, <span class="String"><span class="String">"</span>:-&gt;<span class="String">"</span></span>, <span class="String"><span class="String">"</span>:]<span class="String">"</span></span>]
+</code></pre>
+
+    <aside><p>Оператор <code>%w</code> создает массив из строки, где элементы разделены пробелами.
+  Границами (") может быть любой символ, которого нет в строке.</p>
+    </aside>
+</div>
+
+  <p>который передает в блок элементы массива и возвращает массив результатов
+выполнения блока. В данном случае блок задействуется немедленно.</p>
+
+  <p>Но так бывает не всегда. И чтобы это прочувствовать, мы напишем маленький стартап.</p>
+
+  <section><h3 id="startup">Сервис «Который час?»</h3>
+
+    <p>Наш стартап гениален в своей простоте. Когда пользователь заходит по адресу
+<code>http://который.час/название-города</code>, мы показываем ему точное местное время.
+Отвечаем обычной строкой, без html разметки, поэтому затраты на
+трафик будут минимальны, что очень хорошо для мобильных пользователей.</p>
+
+    <p>Для написания веб-приложения нам не понадобится особых знаний протокола HTTP,
+потому что всю заботу по обработке запросов возьмет на себя микрофреймворк
+<a href="http://www.sinatrarb.com/">Sinatra</a>. Собственно говоря, приложение на Sinatr'е — это
+<a href="http://nashbridges.me/blocks-in-ruby#dsl">DSL</a>, который описывает, на какие запросы стоит отвечать
+серверу и что при этом нужно делать.</p>
+
+    <p>Начнем с простого, напишем обработку запроса <code>http://который.час/london</code></p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Comment"><span class="Comment">#</span> encoding: utf-8</span>
+<span class="Keyword">require</span> <span class="String"><span class="String">'</span>sinatra<span class="String">'</span></span>
+
+get <span class="String"><span class="String">'</span>/london<span class="String">'</span></span> <span class="Keyword">do</span>
+  london_time <span class="Operators">=</span> <span class="LibraryClassType">Time</span>.<span class="FunctionName">now</span>.<span class="FunctionName">utc</span>
+  <span class="String"><span class="String">"</span>В Лондоне сейчас: <span class="String"><span class="String">#{</span>london_time<span class="String">}</span></span><span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Комментарий с кодировкой обязателен для программ, написанных не латиницей.<br><code>Time.now</code> возвращает текущее время в часовом поясе сервера (он может быть,
+  например, в США). Метод <code>utc</code> переводит его в время по Гринвичу.</p>
+      </aside>
+</div>
+
+    <p>Вы не поверите, но это <em>всё</em> наше приложение. Да, оно не учитывает переход на
+летнее время (<abbr title="British Summer Time">BST</abbr>), поэтому с конца мая до
+октября, когда Британия переводит стрелки на час вперед от времени по Гринвичу
+(UTC+1), мы будем показывать неверное время, но я не буду в этом примере
+загромождать код.</p>
+
+    <div class="with-notes">
+      <p>Sinatra должен понять этот так: когда я получаю HTTP GET запрос от клиента
+(читай — браузера), URL которого совпадает с "/london" (доменное
+имя отбрасывается), то должен выполнить приведенный блок, и его результат (строку)
+вернуть клиенту в теле ответа.</p>
+
+      <aside><p>Кроме GET запросов (методов) еще бывают PUT, POST, DELETE. Это часть
+  идеологии <a href="http://habrahabr.ru/blogs/webdev/38730/">REST</a>.</p>
+      </aside>
+</div>
+
+    <p>Сохраним написанное в файл <code>what_time.rb</code> и запустим приложение (для начала
+локально):</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">$ ruby what_time.<span class="FunctionName">rb</span>
+<span class="Operators">==</span> <span class="Variable">Sinatra</span><span class="Operators">/</span><span class="Number">1.2</span>.<span class="Number">6</span> has taken the stage on <span class="Number">4567</span> <span class="Keyword">for</span> development with backup from <span class="Variable">WEBrick</span>
+</code></pre>
+
+      <aside><p>Gem Sinatra уже был установлен.</p>
+      </aside>
+</div>
+
+    <p>По умолчанию Sinatra занимает порт 4567, туда и обратимся с запросом из браузера:
+<code>http://0.0.0.0:4567/london</code>, чтобы увидеть в его окне желанный ответ:</p>
+
+    <pre><code class="slush_poppies">В Лондоне сейчас: <span class="Number">2011</span><span class="Operators">-</span><span class="Number">08</span><span class="Operators">-</span><span class="Number">09</span> <span class="Number">14</span>:<span class="Number">11</span>:<span class="Number">21</span> <span class="Variable">UTC</span>
+</code></pre>
+
+    <p>А теперь поставьте себя на место интерпретатора Ruby и внимательно проследите
+за хронологией.</p>
+
+    <div class="with-notes">
+      <p><code>what_time.rb</code> хранит в себе обычное приложение, в котором есть вызов
+метода <code>get</code>, что принимает в качестве аргумента строку, плюс мы передаем
+ему блок. Еще раз: это не определение метода, а его <em>вызов</em>, который происходит
+в <em>момент запуска сервера</em>, когда Ruby считывает и выполняет <code>what_time.rb</code>.</p>
+
+      <aside><p>DSL всегда создает обманчивое впечатление, что мы определяем методы, а не
+  вызываем их.</p>
+      </aside>
+</div>
+
+    <p>Это означает, что когда мы посылаем свой запрос из браузера, метод <code>get</code> вместе
+с переданным ему блоком уже давным-давно <em>выполнен</em>. И в то же время Ruby нужно
+отдать контроль блоку именно в <em>момент запроса</em>.</p>
+
+    <p>В этом месте жители планеты «Только <code>yield</code>» заливаются горючими слезами. А мы
+переходим к следующему разделу.</p>
+  </section></section><section><h2 id="proc-objects">Процедурные объекты</h2>
+
+  <p>Интуитивно мы понимаем, что где-то внутри метода <code>get</code> хитрые разработчики
+Sinatra сохраняют блок про запас, чтобы выполнить его при получении соответствующего
+запроса от клиента. Но как это сделать?</p>
+
+  <p>Все данные в Ruby — это объект. Числа, строки, массивы, хеши, классы, экземпляры
+классов и даже великий <code>nil</code> — всё это объекты, у каждого из которых есть свой
+набор методов, и которые можно хранить в переменных.</p>
+
+  <p>Но блок — это не объект, это просто кусок кода между ключевыми словами. Поэтому
+не получится просто так запихнуть его в переменную:</p>
+
+  <pre><code class="slush_poppies"> :<span class="Number">001</span> <span class="Operators">&gt;</span> say_hello <span class="Operators">=</span> <span class="Keyword">do</span>
+ :<span class="Number">002</span> <span class="Operators">&gt;</span>   word <span class="Operators">=</span> <span class="String"><span class="String">"</span>Привет!<span class="String">"</span></span>
+ :<span class="Number">003</span>?<span class="Operators">&gt;</span>   puts word
+ :<span class="Number">004</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+  <span class="Variable">SyntaxError</span>: (irb):<span class="Number">1</span>: syntax error, unexpected keyword_do_block
+  (irb):<span class="Number">4</span>: syntax error, unexpected keyword_end, expecting <span class="Variable"><span class="Variable">$</span>end</span>
+</code></pre>
+
+  <p>Чтобы превратить блок в объект, в Ruby существует несколько способов.</p>
+
+  <p>Самый явный — это получение процедурного объекта при помощи системного
+метода <code>lambda</code> или метода <code>new</code> класса <code>Proc</code>. Оба они принимают блок и
+создают объект класса <code>Proc</code>:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"> :<span class="Number">001</span> <span class="Operators">&gt;</span> say_hello <span class="Operators">=</span> lambda <span class="Keyword">do</span>
+ :<span class="Number">002</span> <span class="Operators">&gt;</span>   word <span class="Operators">=</span> <span class="String"><span class="String">"</span>Привет!<span class="String">"</span></span>
+ :<span class="Number">003</span>?<span class="Operators">&gt;</span>   puts word
+ :<span class="Number">004</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+  =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x8c56ff4@(irb):1 (lambda)&gt;</span>
+ :<span class="Number">005</span> <span class="Operators">&gt;</span> say_hello.<span class="FunctionName">class</span>
+  =&gt; <span class="Variable">Proc</span>
+ :<span class="Number">006</span> <span class="Operators">&gt;</span> how_do_you_do <span class="Operators">=</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { puts <span class="String"><span class="String">"</span>Как дела?<span class="String">"</span></span> }
+  =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x8e40090@(irb):6&gt;</span>
+ :<span class="Number">007</span> <span class="Operators">&gt;</span> how_do_you_do.<span class="FunctionName">class</span>
+  =&gt; <span class="Variable">Proc</span>
+</code></pre>
+
+    <aside><p>Заметьте, что блоки не выполняются.</p>
+    </aside>
+</div>
+
+  <p><a href="http://nashbridges.me/blocks-in-ruby">В статье про блоки</a> мы относились к коду блока, как к чему-то
+очень тесно связанному с методом,
+которому этот блок передается. И выполнялся он у нас только вместе с этим методом,
+и аргументы в него передавал только этот метод.</p>
+
+  <p>С созданием процедурного объекта мы делаем код блока независимым. Теперь команду
+на его выполнение можно отдать в любом месте и, что немаловажно, неоднократно и
+в любое время.</p>
+
+  <p>Код блока становится телом процедурного объекта. Но нужно понимать, что во
+время выполнения сам блок не перескакивает в точку вызова, выполнение происходит
+в том месте приложения, где он был написан. Образно говоря, мы перемещаемся по нашей
+программе налегке, с красной кнопкой, тогда как шахты с ядерными ракетами
+всегда остаются на месте. В каких-то случаях это совершенно неважно, в других —
+будет иметь значение.</p>
+
+  <p>Красной кнопкой служит метод <code>call</code>, выполняющий тело процедурного объекта.</p>
+
+  <pre><code class="slush_poppies"> :<span class="Number">008</span> <span class="Operators">&gt;</span> say_hello.<span class="FunctionName">call</span>
+ Привет!
+  =&gt; <span class="BuiltInConstant">nil</span>
+ :<span class="Number">009</span> <span class="Operators">&gt;</span> how_do_you_do.<span class="FunctionName">call</span>
+ Как дела?
+  =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+  <p>Метод <code>call</code> можно сопоставить с оператором <code>yield</code>: он не только запускает,
+через него можно передавать в блок аргументы, он возвращает результат выполнения блока.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> japanese_smile <span class="Operators">=</span> lambda <span class="Keyword">do </span>|<span class="Variable">left_eye</span>, <span class="Variable">right_eye</span> = <span class="Variable">left_eye</span>|
+:<span class="Number">002</span> <span class="Operators">&gt;</span>   <span class="String"><span class="String">"</span>(<span class="String"><span class="String">#{</span>left_eye<span class="String">}</span></span>.<span class="String"><span class="String">#{</span>right_eye<span class="String">}</span></span>)<span class="String">"</span></span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9f93284@(irb):1 (lambda)&gt;</span>
+:<span class="Number">004</span> <span class="Operators">&gt;</span> japanese_smile.<span class="FunctionName">call</span>(<span class="String"><span class="String">'</span>^<span class="String">'</span></span>)
+ =&gt; <span class="String"><span class="String">"</span>(^.^)<span class="String">"</span></span>
+:<span class="Number">005</span> <span class="Operators">&gt;</span> japanese_smile.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>-<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>(-.-)<span class="String">"</span></span>
+:<span class="Number">006</span> <span class="Operators">&gt;</span> japanese_smile.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>&gt;<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&lt;<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>(&gt;.&lt;)<span class="String">"</span></span>
+</code></pre>
+
+    <aside><p>Значения аргументов по умолчанию не обязательно должны быть константами. В
+  примере правый глаз смайлика по умолчанию такой же, как и левый.</p>
+    </aside>
+</div>
+
+  <p>У <code>call</code> есть более короткая форма записи:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">007</span> <span class="Operators">&gt;</span> japanese_smile.(<span class="String"><span class="String">'</span>о<span class="String">'</span></span>, <span class="String"><span class="String">'</span>O<span class="String">'</span></span>)
+ =&gt; <span class="String"><span class="String">"</span>(о.O)<span class="String">"</span></span>
+</code></pre>
+
+    <aside><p>Скобки здесь обязательны.</p>
+    </aside>
+</div>
+</section><section><h2 id="lambda-vs-proc">Лямбда против прока</h2>
+
+  <div class="with-notes">
+    <p>Хотя все процедурные объекты в Ruby одного класса (<code>Proc</code>), те, что созданы
+с помощью <code>lambda</code>, отличаются от созданных методом <code>Proc.new</code>. Первые называют
+(по имени метода-родителя) лямбдами (lambda), вторые — проками (proc).</p>
+
+    <aside><p>Термин «лямбда» приплыл в Ruby из <a href="http://ru.wikipedia.org/wiki/%D0%9B%D1%8F%D0%BC%D0%B1%D0%B4%D0%B0-%D0%B8%D1%81%D1%87%D0%B8%D1%81%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5">лямбда-исчисления</a>.</p>
+    </aside>
+</div>
+
+  <section><h3 id="formal-criterion">Формальные признаки</h3>
+
+    <p>Вы могли уже заметить, что строковые представления лямбды и прока отличаются:
+Ruby добавляет к первой уточнение в скобках. Но если в коде нужно проверить,
+с чем имеете дело, удобнее использовать специальный метод-детектор — <code>lambda?</code></p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> lambda {}.<span class="FunctionName">to_s</span>
+ =&gt; <span class="String"><span class="String">"</span>#&lt;Proc:0x97f755c@(irb):1 (lambda)&gt;<span class="String">"</span></span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> {}.<span class="FunctionName">to_s</span>
+ =&gt; <span class="String"><span class="String">"</span>#&lt;Proc:0x97db398@(irb):2&gt;<span class="String">"</span></span>
+:<span class="Number">003</span> <span class="Operators">&gt;</span> lambda {}.<span class="FunctionName">lambda?</span>
+ =&gt; <span class="BuiltInConstant">true</span>
+:<span class="Number">004</span> <span class="Operators">&gt;</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> {}.<span class="FunctionName">lambda?</span>
+ =&gt; <span class="BuiltInConstant">false</span>
+</code></pre>
+
+      <aside><p>Да, мы передаем пустые блоки. Это глупо, но не запрещено законом.</p>
+      </aside>
+</div>
+  </section><section><h3 id="parameters">Аргументы</h3>
+
+    <p>Когда мы сравнивали блоки и методы, то выяснили, что в отношении переданных
+аргументов блок пофигистичен: ему можно и недогрузить аргументов, и насыпать в
+два раза больше, тогда как метод строг и последователен: на любое несоответствие
+в количестве возбуждается ошибка.</p>
+
+    <p>Так вот, прок совершенно прозрачно повторяет логику блока, в то время как
+лямбда добавляет к переданному ей блоку педантичности метода.</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> link_to <span class="Operators">=</span> lambda { |<span class="Variable">href</span>, <span class="Variable">text</span>| <span class="String"><span class="String">"</span>&lt;a href='<span class="String"><span class="String">#{</span>href<span class="String">}</span></span>'&gt;<span class="String"><span class="String">#{</span>text<span class="String">}</span></span>&lt;/a&gt;<span class="String">"</span></span> }
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9abb89c@(irb):1 (lambda)&gt;</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> link_to.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>http://который.час<span class="String">'</span></span>, <span class="String"><span class="String">'</span>Который час?<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>&lt;a href='http://который.час'&gt;Который час?&lt;/a&gt;<span class="String">"</span></span>
+:<span class="Number">003</span> <span class="Operators">&gt;</span> link_to.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>http://который.час<span class="String">'</span></span>
+<span class="Variable">ArgumentError</span>: wrong number of arguments (<span class="Number">1</span> <span class="Keyword">for</span> <span class="Number">2</span>)
+:<span class="Number">004</span> <span class="Operators">&gt;</span> link_to.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>http://который.час<span class="String">'</span></span>, <span class="String"><span class="String">'</span>Который час?<span class="String">'</span></span>, <span class="String"><span class="String">'</span>лишнее<span class="String">'</span></span>
+<span class="Variable">ArgumentError</span>: wrong number of arguments (<span class="Number">3</span> <span class="Keyword">for</span> <span class="Number">2</span>)
+</code></pre>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">005</span> <span class="Operators">&gt;</span> link_to <span class="Operators">=</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { |<span class="Variable">href</span>, <span class="Variable">text</span>| <span class="String"><span class="String">"</span>&lt;a href='<span class="String"><span class="String">#{</span>href<span class="String">}</span></span>'&gt;<span class="String"><span class="String">#{</span>text<span class="String">}</span></span>&lt;/a&gt;<span class="String">"</span></span> }
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9bfcaa8@(irb):5&gt;</span>
+:<span class="Number">006</span> <span class="Operators">&gt;</span> link_to.<span class="FunctionName">call</span>
+ =&gt; <span class="String"><span class="String">"</span>&lt;a href=''&gt;&lt;/a&gt;<span class="String">"</span></span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> link_to.<span class="FunctionName">call</span> <span class="String"><span class="String">'</span>http://который.час<span class="String">'</span></span>, <span class="String"><span class="String">'</span>Который час?<span class="String">'</span></span>, <span class="String"><span class="String">'</span>лишнее<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>&lt;a href='http://который.час'&gt;Который час?&lt;/a&gt;<span class="String">"</span></span>
+</code></pre>
+
+      <aside><p>В строке 006 аргументы <code>href</code> и <code>text</code> принимают значение <code>nil</code> и поэтому
+  вырождаются в пустые строки.</p>
+      </aside>
+</div>
+
+    <p>Мнемонику для этого можно использовать следующую: лямбда — противная (судя по названию),
+дотошная, считает аргументы, прок — простой парень, аргументы не считает.</p>
+  </section><section><h3 id="return"><code>return</code></h3>
+
+    <p>Ключевое слово <code>return</code> в блоке лямбды прерывает его выполнение и
+возвращает управление в то окружение (метод или блок), где была вызвана лямбда.</p>
+
+    <p>С проком сложнее: <code>return</code> вначале перемещает нас в то окружение,
+где был определен его блок, а затем выполняет <code>return</code> из него.</p>
+
+    <p>Пусть у нас есть такой метод:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Comment"><span class="Comment">#</span> casino.rb</span>
+
+<span class="Keyword">def</span> <span class="FunctionName">enter_casino</span>(<span class="Variable">entrance_fee<span class="Variable">,</span> bouncer_type</span>)
+  puts <span class="String"><span class="String">"</span>Вы подходите к казино и даете <span class="String"><span class="String">#{</span>entrance_fee<span class="String">}</span></span>$<span class="String">"</span></span>
+
+  bouncer <span class="Operators">=</span> <span class="Keyword">case</span> bouncer_type
+  <span class="Keyword">when</span> <span class="String"><span class="String">"</span>маленький вышибала<span class="String">"</span></span>
+    lambda <span class="Keyword">do </span>|<span class="Variable">entrance_fee</span>|
+      <span class="Keyword">return</span> <span class="String"><span class="String">"</span>«Маловато денег даешь, парниша»<span class="String">"</span></span> <span class="Keyword">if</span> entrance_fee <span class="Operators">&lt;</span> <span class="Number">50</span>
+      <span class="String"><span class="String">"</span>«Проходите, добрый сэр!»<span class="String">"</span></span>
+    <span class="Keyword">end</span>
+  <span class="Keyword">when</span> <span class="String"><span class="String">"</span>большой вышибала<span class="String">"</span></span>
+    <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> <span class="Keyword">do </span>|<span class="Variable">entrance_fee</span>|
+      <span class="Keyword">return</span> <span class="String"><span class="String">"</span>«Чо за дела?!»<span class="String">"</span></span> <span class="Keyword">if</span> entrance_fee <span class="Operators">&lt;</span> <span class="Number">50</span>
+      <span class="String"><span class="String">"</span>«Добро пожаловать и приятного вечера!»<span class="String">"</span></span>
+    <span class="Keyword">end</span>
+  <span class="Keyword">end</span>
+
+  puts bouncer.<span class="FunctionName">call</span>(entrance_fee)
+  puts <span class="String"><span class="String">"</span>Вы зашли внутрь.<span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Предпоследний <code>puts</code> печатает те слова, которые сообщит нам вышибала.</p>
+      </aside>
+</div>
+
+    <p>Проверим сначала лямбду:</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>./casino<span class="String">'</span></span>
+ =&gt; <span class="BuiltInConstant">true</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> enter_casino <span class="Number">50</span>, <span class="String"><span class="String">"</span>маленький вышибала<span class="String">"</span></span>
+Вы подходите к казино и даете <span class="Number">50</span>$
+«Проходите, добрый сэр!»
+Вы зашли внутрь.
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <p>Без неожиданностей. Теперь попробуем обмануть нашего вышибалу:</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">003</span> <span class="Operators">&gt;</span> enter_casino <span class="Number">5</span>, <span class="String"><span class="String">"</span>маленький вышибала<span class="String">"</span></span>
+Вы подходите к казино и даете <span class="Number">5</span>$
+«Маловато денег даешь, парниша»
+Вы зашли внутрь.
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <p>Отлично! <code>return</code> не дал добраться до конца блока, поэтому лямбда вернула «Маловато…»
+вместо «Проходите…». Но на выполнение метода <code>enter_casino</code> это никак не повлияло,
+он продолжил работу ровно с того момента, как передал управление лямбде,
+т. е. с предпоследнего метода <code>puts</code>.</p>
+
+    <p>Поставим теперь на входе прок:</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">004</span> <span class="Operators">&gt;</span> enter_casino <span class="Number">5</span>, <span class="String"><span class="String">"</span>большой вышибала<span class="String">"</span></span>
+Вы подходите к казино и даете <span class="Number">5</span>$
+ =&gt; «Чо за дела<span class="Number">?!</span>»
+</code></pre>
+
+    <p>Бум! <code>return</code> произошел не только из тела прока, но и из <code>enter_casino</code>.
+Методу даже не дали выполнить <code>puts</code>, чтобы напечатать «Чо за дела?!» (эти слова
+вернул сам метод после аварийного <code>return</code>).</p>
+
+    <p>Тот факт, что Ruby пытается выполнить <code>return</code> из окружения, где был <em>определен</em>
+блок прока, а не из того, где он вызван (в примере с казино эти окружения совпали),
+может приводить к ошибкам <code>LocalJumpError</code>.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> outer_proc <span class="Operators">=</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { <span class="Keyword">return</span> }
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x8dfc098@(irb):1&gt;</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">call_proc</span>(<span class="Variable">pr</span>)
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>   pr.<span class="FunctionName">call</span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>   puts <span class="String"><span class="String">"</span>Этой строки мы не увидим<span class="String">"</span></span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">006</span> <span class="Operators">&gt;</span> <span class="FunctionName">call_proc</span>(outer_proc)
+<span class="Variable">LocalJumpError</span>: unexpected <span class="Keyword">return</span>
+</code></pre>
+
+      <aside><p>Казалось бы, <code>return</code> должен произойти из <code>call_proc</code>, но на деле получается
+  фатальная попытка совершить его из самого приложения, т. к. <code>outer_proc</code>
+  у нас «в свободном плавании».</p>
+      </aside>
+</div>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">make_proc</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { <span class="Keyword">return</span> }
+:<span class="Number">003</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">004</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">call_proc</span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   make_proc.<span class="FunctionName">call</span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> call_proc
+<span class="Variable">LocalJumpError</span>: unexpected <span class="Keyword">return</span>
+</code></pre>
+
+      <aside><p>Обращение к <code>make_proc</code> возвращает прок (происходит неявный <code>return</code> из метода).
+  Вызов самого прока приводит к повторной попытке выполнить <code>return</code> из этого
+  же метода.</p>
+      </aside>
+</div>
+
+    <p>Это подтверждает то, что блок, несмотря на превращение в процедурный объект,
+остается и выполняется на том же месте в коде приложения, где вы его написали.</p>
+
+    <p>Мнемонику для <code>return</code> можно использовать такую: лямбда — существо маленькое
+(пишется со строчной буквы), поэтому силы его слова хватает только на себя само,
+прок — большая шишка (<code>Proc.new</code>, с прописной), его <code>return</code>'а хватает и на
+окружающий метод или блок.</p>
+
+  </section></section><section><h2 id="catch-block">Достать блок</h2>
+
+  <section><h3 id="frozen-yield">Замороженный <code>yield</code>
+</h3>
+
+    <p>Вернемся к нашим попыткам понять, как устроен Sinatr'овский метод <code>get</code>:</p>
+
+    <pre><code class="slush_poppies">get <span class="String"><span class="String">'</span>/london<span class="String">'</span></span> <span class="Keyword">do</span>
+  london_time <span class="Operators">=</span> <span class="LibraryClassType">Time</span>.<span class="FunctionName">now</span>.<span class="FunctionName">utc</span>
+  <span class="String"><span class="String">"</span>В Лондоне сейчас: <span class="String"><span class="String">#{</span>london_time<span class="String">}</span></span><span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Давайте попробуем написать упрощенную реализацию хранения таких блоков.
+Процедурные объекты будут храниться в хеше, ключи — строки с URL. Как вызвать
+их оттуда, уже знаем, как явно создать прок/лямбду — тоже. Но вот как поймать
+переданный методу блок внутри самого метода?</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Comment"><span class="Comment">#</span> fake_sinatra.rb</span>
+
+<span class="Keyword">class</span> FakeSinatra
+  <span class="Keyword">def</span> <span class="FunctionName">initialize</span>
+    <span class="Variable"><span class="Variable">@</span>blocks</span> <span class="Operators">=</span> {}
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">exec</span>(<span class="Variable">url</span>)
+    block <span class="Operators">=</span> <span class="Variable"><span class="Variable">@</span>blocks</span>[url]
+    block.<span class="FunctionName">call</span> <span class="Keyword">if</span> block
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">get</span>(<span class="Variable">url</span>)
+    <span class="Variable"><span class="Variable">@</span>blocks</span>[url] <span class="Operators">=</span> <span class="Comment"><span class="Comment">#</span> как?</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Хотя в переменных хранятся процедурные объекты, разработчики
+  обычно в качестве имен используют созвучные с <code>block</code>: так привычнее.</p>
+      </aside>
+</div>
+
+    <p>До сих пор с переданным методу блоком мы связывались с помощью ключевого слова
+<code>yield</code>. Но если написать так</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">get</span>(<span class="Variable">url</span>)
+  <span class="Variable"><span class="Variable">@</span>blocks</span>[url] <span class="Operators">=</span> <span class="Keyword">yield</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>блок будет выполнен одновременно с методом, и в хеш попадет результат его выполнения.
+Это нас не устраивает. Тогда, может быть, так?</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">get</span>(<span class="Variable">url</span>)
+  <span class="Variable"><span class="Variable">@</span>blocks</span>[url] <span class="Operators">=</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { <span class="Keyword">yield</span> }
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Хм-м-м. Опять же непонятно, будет ли <code>yield</code> вызываться каждый раз при обращении
+к проку или в теле прока осядет статический результат выполнения блока? Давайте проверим:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">require</span> <span class="String"><span class="String">'</span>./fake_sinatra<span class="String">'</span></span>
+ =&gt; <span class="BuiltInConstant">true</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> sinatra_app <span class="Operators">=</span> <span class="LibraryClassType">FakeSinatra</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;FakeSinatra:0x9b6f504 @blocks={}&gt;</span>
+:<span class="Number">003</span> <span class="Operators">&gt;</span> sinatra_app.<span class="FunctionName">get</span> <span class="String"><span class="String">'</span>/london<span class="String">'</span></span> <span class="Keyword">do</span>
+:<span class="Number">004</span> <span class="Operators">&gt;</span>   london_time <span class="Operators">=</span> <span class="LibraryClassType">Time</span>.<span class="FunctionName">now</span>.<span class="FunctionName">utc</span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   <span class="String"><span class="String">"</span>В Лондоне сейчас: <span class="String"><span class="String">#{</span>london_time<span class="String">}</span></span><span class="String">"</span></span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9abb518@(irb):3&gt;</span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> sinatra_app
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;FakeSinatra:0x9b6f504 @blocks={"/london"=&gt;#&lt;Proc:0x9abb518@(irb):3&gt;}&gt;</span>
+:<span class="Number">008</span> <span class="Operators">&gt;</span> sinatra_app.<span class="FunctionName">exec</span> <span class="String"><span class="String">'</span>/london<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>В Лондоне сейчас: 2011-08-11 08:01:42 UTC<span class="String">"</span></span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> sinatra_app.<span class="FunctionName">exec</span> <span class="String"><span class="String">'</span>/london<span class="String">'</span></span>
+ =&gt; <span class="String"><span class="String">"</span>В Лондоне сейчас: 2011-08-11 08:01:45 UTC<span class="String">"</span></span>
+</code></pre>
+
+      <aside><p>Мы вызываем <code>exec</code> несколько раз, чтобы убедиться, что прок возвращает
+  разные результаты, т. е. <code>yield</code> выполняется раз за разом.</p>
+      </aside>
+</div>
+
+    <p>Что ж, подход оказался вполне рабочим. Несмотря на то, что фактически мы реализовали
+отложенное обращение к <code>yield</code> через прок, это дало нужный результат.</p>
+
+    <p>Но необходимость двойного вызова (вначале <code>call</code>, потом <code>yield</code>) для того,
+чтобы добраться до блока,
+оставляет ощущение, что это не самый простой и правильный способ. К счастью,
+в Ruby предусмотрено несколько способов создания процедурного объекта напрямую
+из переданного в метод блока.</p>
+  </section><section><h3 id="proc-new">Proc.new</h3>
+
+    <p>Если внутри метода вызвать <code>Proc.new</code> без блока, Ruby воспримет это
+как указание создать прок из внешнего блока.</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">act_as_yield</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span>.<span class="FunctionName">call</span> <span class="Keyword">if</span> <span class="Keyword">block_given?</span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">004</span> <span class="Operators">&gt;</span> act_as_yield { <span class="Number">2</span> <span class="Operators">+</span> <span class="Number">3</span> }
+ =&gt; <span class="Number">5</span>
+</code></pre>
+
+    <p>Поэтому метод <code>get</code> для <code>FakeSinatra</code> может быть переписан так:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">get</span>(<span class="Variable">url</span>)
+  <span class="Variable"><span class="Variable">@</span>blocks</span>[url] <span class="Operators">=</span> <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span>
+<span class="Keyword">end</span>
+</code></pre>
+  </section><section><h3 id="pseudoparameter">Псевдоаргумент</h3>
+
+    <p>Для Ruby блок — особый персонаж, его можно передавать любому методу, ничего не
+указывая в списке аргументов. Но всякое тайное рано или поздно становится
+явным. Так и наш псевдоаргумент-блок — его, оказывается, можно вписывать в
+общий список!</p>
+
+    <p>Однако, законы Джима Кроу не позволяют блоку быть в списке со всеми
+наравне, перед блочным псевдоаргументом обязательно ставится <dfn title="унарный амперсанд">&amp;</dfn>.
+Этот амперсанд не является методом или оператором, он выполняет роль маркера,
+который говорит Ruby о двух вещах:</p>
+
+    <ol>
+<li>Этот аргумент — не аргумент, а блок метода.</li>
+      <li>Всё, что передается методу под видом блока, нужно преобразовать в прок.
+Блоки оборачиваются в <code>Proc.new {}</code>; если это объект, у него вызывается
+метод <code>to_proc</code>.</li>
+    </ol>
+<div class="with-notes">
+      <p>У этих аксиом есть несколько важных следствий. Во-первых, амперсанд перед именем
+переменной играет роль только в списке аргументов. Поэтому попытка
+использовать его, например, в операции присваивания бессмысленна и приводит к
+синтаксической ошибке.</p>
+
+      <aside><p>Не стоит путать его с методом <code>&amp;</code>, который есть у многих классов, он всегда
+  пишется раздельно с переменной.</p>
+      </aside>
+</div>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> hello <span class="Operators">=</span> lambda { <span class="String"><span class="String">"</span>hello<span class="String">"</span></span> }
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0xa04e1c4@(irb):1 (lambda)&gt;</span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> say <span class="Operators">=</span> <span class="Operators">&amp;</span>hello
+<span class="Variable">SyntaxError</span>: (irb):<span class="Number">2</span>: syntax error, unexpected tAMPER
+</code></pre>
+
+    <p>Во-вторых, поскольку методу можно передать один блок, в списке аргументов
+амперсандом можно отметить только один аргумент, и он должен быть последним.</p>
+
+    <p>В-третьих, в переменную, отмеченную амперсандом, автоматически попадает
+процедурный объект. Например, наш метод <code>get</code> можно записать и так:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">get</span>(<span class="Variable">url<span class="Variable">,</span> <span class="Operators">&amp;</span>captured_block</span>)
+  <span class="Variable"><span class="Variable">@</span>blocks</span>[url] <span class="Operators">=</span> captured_block
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>В-четвертых (и это самое интересное), методу можно передать в качестве блока
+любой объект, у которого есть метод <code>to_proc</code>. Кандидат №1 — процедурный объект,
+его <code>to_proc</code> возвращает сам себя. Это позволяет пасовать блок (в виде объекта)
+по цепочке другим методам.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">pizza_each</span>(<span class="Variable">type<span class="Variable">,</span> <span class="Operators">&amp;</span>block</span>)
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   ingredients <span class="Operators">=</span> <span class="Keyword">case</span> type
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>   <span class="Keyword">when</span> <span class="String"><span class="String">"</span>Маргарита<span class="String">"</span></span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>     <span class="String"><span class="String">%w(</span>помидоры сыр базилик<span class="String">)</span></span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   <span class="Keyword">when</span> <span class="String"><span class="String">"</span>Маринара<span class="String">"</span></span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span>     <span class="String"><span class="String">%w(</span>помидоры чеснок орегано<span class="String">)</span></span>
+:<span class="Number">007</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">008</span>?<span class="Operators">&gt;</span>   ingredients.<span class="FunctionName">each</span> <span class="Operators">&amp;</span>block
+:<span class="Number">009</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">010</span> <span class="Operators">&gt;</span> <span class="FunctionName">pizza_each</span>(<span class="String"><span class="String">"</span>Маргарита<span class="String">"</span></span>) {|<span class="Variable">el</span>| puts <span class="String"><span class="String">"</span>Кладем <span class="String"><span class="String">#{</span>el<span class="String">}</span></span><span class="String">"</span></span>}
+Кладем помидоры
+Кладем сыр
+Кладем базилик
+ =&gt; [<span class="String"><span class="String">"</span>помидоры<span class="String">"</span></span>, <span class="String"><span class="String">"</span>сыр<span class="String">"</span></span>, <span class="String"><span class="String">"</span>базилик<span class="String">"</span></span>]
+</code></pre>
+
+      <aside><p>Мы не передаем методу <code>each</code> аргумент, мы говорим, что переменную <code>block</code>
+  нужно считать блоком.</p>
+      </aside>
+</div>
+
+    <p>И эта цепочка может быть сколь угодно длинной:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">011</span> <span class="Operators">&gt;</span> tell_about_pizza <span class="Operators">=</span> lambda { |<span class="Variable">x</span>| puts <span class="String"><span class="String">"</span>В этой пицце есть <span class="String"><span class="String">#{</span>x<span class="String">}</span></span><span class="String">"</span></span> }
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x92cd2ac@(irb):11 (lambda)&gt;</span>
+:<span class="Number">012</span> <span class="Operators">&gt;</span> pizza_each <span class="String"><span class="String">"</span>Маринара<span class="String">"</span></span>, <span class="Operators">&amp;</span>tell_about_pizza
+В этой пицце есть помидоры
+В этой пицце есть чеснок
+В этой пицце есть орегано
+ =&gt; [<span class="String"><span class="String">"</span>помидоры<span class="String">"</span></span>, <span class="String"><span class="String">"</span>чеснок<span class="String">"</span></span>, <span class="String"><span class="String">"</span>орегано<span class="String">"</span></span>]
+</code></pre>
+
+      <aside><p>Здесь мы передаем методу <code>pizza_each</code> один аргумент и один блок.</p>
+      </aside>
+</div>
+
+    <p>Что, если «забыть» приписать амперсанд? Ruby не ясновидящий, поэтому даже если
+мы передаем процедурный объект, и <em>даже</em> если он последний в списке, это еще
+не основание считать его блоком.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">014</span> <span class="Operators">&gt;</span> pizza_each <span class="String"><span class="String">"</span>Маргарита<span class="String">"</span></span>, tell_about_pizza
+<span class="Variable">ArgumentError</span>: wrong number of arguments (<span class="Number">2</span> <span class="Keyword">for</span> <span class="Number">1</span>)
+</code></pre>
+
+      <aside><p><code>pizza_each</code> может принять только один аргумент.</p>
+      </aside>
+</div>
+
+    <p>Как я уже говорил, если в качестве блока передается объект, Ruby неявно вызывает
+у него метод <code>to_proc</code>, чтобы внутрь метода уже попал процедурный объект. Проки
+и лямбды в этом случае прозрачны, т. к. превращаются сами в себя.</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">013</span> <span class="Operators">&gt;</span> tell_about_pizza.<span class="FunctionName">to_proc</span>.<span class="FunctionName">call</span> <span class="String"><span class="String">"</span>анчоусы<span class="String">"</span></span>
+В этой пицце есть анчоусы
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <p>Но это означает, что определив в любом классе метод <code>to_proc</code>, объект этого
+класса можно передавать методу под видом блока. Главное, чтобы <code>to_proc</code>
+возвращал процедурный объект.</p>
+
+    <p>В качестве довольно глупого примера мы можем добавить такой метод классу <code>String</code>:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"> :<span class="Number">014</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">String</span>
+ :<span class="Number">015</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">to_proc</span>
+ :<span class="Number">016</span>?<span class="Operators">&gt;</span>     <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> { |<span class="Variable">x</span>| <span class="FunctionName">puts</span>(self <span class="Operators">+</span> x) }
+ :<span class="Number">017</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+ :<span class="Number">018</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+  =&gt; <span class="BuiltInConstant">nil</span>
+ :<span class="Number">019</span> <span class="Operators">&gt;</span> pizza_each <span class="String"><span class="String">"</span>Маргарита<span class="String">"</span></span>, <span class="Operators">&amp;</span><span class="String"><span class="String">"</span>Для ее приготовления нужны <span class="String">"</span></span>
+ Для ее приготовления нужны помидоры
+ Для ее приготовления нужны сыр
+ Для ее приготовления нужны базилик
+  =&gt; [<span class="String"><span class="String">"</span>помидоры<span class="String">"</span></span>, <span class="String"><span class="String">"</span>сыр<span class="String">"</span></span>, <span class="String"><span class="String">"</span>базилик<span class="String">"</span></span>]
+</code></pre>
+
+      <aside><p><code>self</code> всегда является тем объектом, метод которого вызывается. Поскольку Ruby
+  неявно вызывает метод <code>to_proc</code> у объекта, который мы подсовываем в
+  качестве блока, <code>self</code>'ом будет сама строка.</p>
+      </aside>
+</div>
+
+    <div class="with-notes">
+      <p>Но этому свойству всё-таки нашлось и полезное применение. Если передать в
+качестве блока символ (символьный объект), это равносильно передаче блока, в котором
+у аргумента будет вызываться одноименный метод. Такой вот синтаксический сахар,
+но никакой магии.</p>
+
+      <aside><p>Реализацию <code>to_proc</code> у <code>Symbol</code> в этой статье рассматривать не будем.</p>
+      </aside>
+</div>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="String"><span class="String">%w(</span>моцарелла оливки грибы<span class="String">)</span></span>.<span class="FunctionName">map</span> { |<span class="Variable">el</span>| el.<span class="FunctionName">reverse</span> }
+ =&gt; [<span class="String"><span class="String">"</span>аллерацом<span class="String">"</span></span>, <span class="String"><span class="String">"</span>иквило<span class="String">"</span></span>, <span class="String"><span class="String">"</span>ыбирг<span class="String">"</span></span>]
+:<span class="Number">002</span> <span class="Operators">&gt;</span> <span class="String"><span class="String">%w(</span>горгонзола розмарин салями<span class="String">)</span></span>.<span class="FunctionName">map</span> <span class="Operators">&amp;</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>reverse</span>
+ =&gt; [<span class="String"><span class="String">"</span>алозногрог<span class="String">"</span></span>, <span class="String"><span class="String">"</span>нирамзор<span class="String">"</span></span>, <span class="String"><span class="String">"</span>имялас<span class="String">"</span></span>]
+</code></pre>
+
+  </section></section><section><h2 id="playing-with-closures">Игры с замыканиями</h2>
+
+  <p>Как вы помните, блоки являются замыканиями, т. е. имеют доступ к переменным во
+внешнем окружении. Превращение блока в процедурный объект не отменяет этого
+факта. Главное — не забывать, что несмотря на то, что вызов прока или лямбды
+может быть сделан в любой точке программы, выполнение его тела будет происходить
+в том месте, где был написан блок, поэтому и переменные он будет «видеть»
+соответствующие.</p>
+
+  <p>Для демонстрации этого проведем свою версию эксперимента с кошкой Шрёдингера.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"> :<span class="Number">001</span> <span class="Operators">&gt;</span> cat_status <span class="Operators">=</span> <span class="String"><span class="String">"</span>Кошка жива<span class="String">"</span></span>
+  =&gt; <span class="String"><span class="String">"</span>Кошка жива<span class="String">"</span></span>
+ :<span class="Number">002</span> <span class="Operators">&gt;</span> print_cat_status <span class="Operators">=</span> lambda { puts cat_status }
+  =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9ad4068@(irb):2 (lambda)&gt;</span>
+ :<span class="Number">003</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">schrodinger_box</span>(<span class="Variable">observer</span>)
+ :<span class="Number">004</span>?<span class="Operators">&gt;</span>   cat_status <span class="Operators">=</span> <span class="String"><span class="String">"</span>Кошка уже надышалась газа<span class="String">"</span></span>
+ :<span class="Number">005</span>?<span class="Operators">&gt;</span>   observer.<span class="FunctionName">call</span>
+ :<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+  =&gt; <span class="BuiltInConstant">nil</span>
+ :<span class="Number">007</span> <span class="Operators">&gt;</span> <span class="FunctionName">schrodinger_box</span>(print_cat_status)
+ Кошка жива
+  =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <aside><p>Лямда определена вне метода <code>schrodinger_box</code>, а значит, не может получить
+  доступ к его локальным переменным.</p>
+    </aside>
+</div>
+
+  <p>Важно то, что «захватывается» не статическая величина, которая была присвоена
+переменной в момент создания процедурного объекта, а именно сама переменная,
+обращение к которой происходит каждый раз, когда вызывается лямбда.</p>
+
+  <pre><code class="slush_poppies">:<span class="Number">008</span> <span class="Operators">&gt;</span> cat_status <span class="Operators">=</span> <span class="String"><span class="String">"</span>Кошка разбирает взрывное устройство<span class="String">"</span></span>
+ =&gt; <span class="String"><span class="String">"</span>Кошка разбирает взрывное устройство<span class="String">"</span></span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> <span class="FunctionName">schrodinger_box</span>(print_cat_status)
+Кошка разбирает взрывное устройство
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+  <p>Возможен и обратный случай, когда замыкается локальное пространство метода.
+Обычно оно существует только в момент выполнения метода, после чего все локальные
+переменные перемещаются в мусорную корзину и уничтожаются дьявольским Сборщиком
+Мусора. Но если мы возвращаем из метода замыкание, «захваченные» переменные
+продолжают жить, пока существует само замыкание.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> cat_status <span class="Operators">=</span> <span class="String"><span class="String">"</span>Мы ее теряем<span class="String">"</span></span>
+ =&gt; <span class="String"><span class="String">"</span>Мы ее теряем<span class="String">"</span></span>
+:<span class="Number">002</span> <span class="Operators">&gt;</span> <span class="Keyword">def</span> <span class="FunctionName">schrodinger_box</span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>   cat_status <span class="Operators">=</span> <span class="String"><span class="String">"</span>А кошка-то жива!<span class="String">"</span></span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>   <span class="LibraryClassType">Proc</span>.<span class="FunctionName">new</span> <span class="Keyword">do</span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>     cat_status <span class="Operators">+=</span> <span class="String"><span class="String">'</span> :)<span class="String">'</span></span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span>     puts cat_status
+:<span class="Number">007</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">008</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> box <span class="Operators">=</span> schrodinger_box
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9eef918@(irb):4&gt;</span>
+:<span class="Number">010</span> <span class="Operators">&gt;</span> box.<span class="FunctionName">call</span>
+А кошка<span class="Operators">-</span>то жива! :)
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">011</span> <span class="Operators">&gt;</span> box.<span class="FunctionName">call</span>
+А кошка<span class="Operators">-</span>то жива! :) :)
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">012</span> <span class="Operators">&gt;</span> schrodinger_box.<span class="FunctionName">call</span>
+А кошка<span class="Operators">-</span>то жива! :)
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">013</span> <span class="Operators">&gt;</span> box.<span class="FunctionName">call</span>
+А кошка<span class="Operators">-</span>то жива! :) :) :)
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <aside><p>В строке 012 происходит повторный вызов метода, а значит, создается новое
+  локальное окружение, в котором <code>cat_status</code> еще с иголочки.</p>
+    </aside>
+</div>
+
+</section><section><h2 id="short-lambda">Короткая лямбда</h2>
+
+  <p>Кроме метода <code>lambda</code> существует более короткий способ создания
+лямбды — оператор <code>-&gt;</code>. С его использованием список аргументов выносится
+из блока и берется в круглые скобки вместо прямых.</p>
+
+  <p>Было</p>
+
+  <pre><code class="slush_poppies">say_hello <span class="Operators">=</span> lambda { |<span class="Variable">name</span>| puts <span class="String"><span class="String">"</span>Привет, <span class="String"><span class="String">#{</span>name<span class="String">}</span></span>!<span class="String">"</span></span> }
+</code></pre>
+
+  <p>стало</p>
+
+  <pre><code class="slush_poppies">say_hello <span class="Operators">=</span> <span class="Operators">-</span><span class="Operators">&gt;</span>(name) { puts <span class="String"><span class="String">"</span>Привет, <span class="String"><span class="String">#{</span>name<span class="String">}</span></span>!<span class="String">"</span></span> }
+</code></pre>
+
+  <p>а учитывая, что скобки вокруг аргументов можно не писать, и вовсе:</p>
+
+  <pre><code class="slush_poppies">say_hello <span class="Operators">=</span> <span class="Operators">-</span><span class="Operators">&gt;</span> name { puts <span class="String"><span class="String">"</span>Привет, <span class="String"><span class="String">#{</span>name<span class="String">}</span></span>!<span class="String">"</span></span> }
+</code></pre>
+
+  <p>Но кроме выигрыша в несколько символов, эта запись не дает никакого преимущества,
+и честно говоря, больше сбивает с толку человека, привыкшего к блоковой записи.</p>
+</section><section><h2 id="application">Процедурные объекты на практике</h2>
+
+  <p>Процедурные объекты решают две задачи:</p>
+
+  <ul>
+<li>позволить отложенное выполнение (<em>lazy evaluation</em>) блока;</li>
+    <li>избежать дублирования кода, когда нескольким методам нужно передать один и
+тот же блок.</li>
+  </ul>
+<section><h3 id="active-support-hooks">Длительный старт в Ruby on Rails</h3>
+
+    <p>В Ruby on Rails есть довольно объемные модули (например,
+<a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb">activerecord/lib/active_record/base.rb</a>: увесистый сам по
+себе + загружает еще 22 файла), их время загрузки значительно. Конфигурация вашего
+сайта производится при старте сервера. И если часть настроек в ней касается такого
+объемного модуля, его придется вначале загрузить, что скажется на общем времени
+старта приложения. Тогда как можно просто подождать, когда модуль понадобится
+в деле, будет загружен, и уже потом произвести его донастройку.</p>
+
+    <p>Для этих целей в Rails используются <a href="https://github.com/rails/rails/blob/master/activesupport/lib/active_support/lazy_load_hooks.rb">загрузочные хуки</a>.
+Каждый модуль в самом конце содержит вызов метода <code>ActiveSupport.run_load_hooks</code>
+(т. е. он будет выполнен только после загрузки и парсинга текущего
+и всех подключаемых в нем файлов), например</p>
+
+    <pre><code class="slush_poppies"><span class="LibraryClassType">ActiveSupport</span>.<span class="FunctionName">run_load_hooks</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>active_record</span>, <span class="LibraryClassType">ActiveRecord</span>::<span class="FunctionName">Base</span>)
+</code></pre>
+
+    <p>Этот метод запустит все назначенные для модуля ActiveRecord
+хуки, которые являются обычными блоками и задаются с помощью <code>ActiveSupport.on_load</code>.
+Таким образом, блок, настраивающий ActiveRecord,</p>
+
+    <pre><code class="slush_poppies"><span class="LibraryClassType">ActiveSupport</span>.<span class="FunctionName">on_load</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>active_record</span>) <span class="Keyword">do</span>
+  self.<span class="FunctionName">time_zone_aware_attributes</span> <span class="Operators">=</span> <span class="BuiltInConstant">true</span>
+  self.<span class="FunctionName">default_timezone</span> <span class="Operators">=</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>utc</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>будет выполнен только тогда, когда произойдет загрузка этого модуля.</p>
+
+    <p>Если мы посмотрим на реализацию метода <code>ActiveSupport.on_load</code></p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">self.on_load</span>(<span class="Variable">name<span class="Variable">,</span> options <span class="Operators">=</span> <span class="Variable">{</span><span class="Variable">}</span><span class="Variable">,</span> <span class="Operators">&amp;</span>block</span>)
+  <span class="Keyword">if</span> base <span class="Operators">=</span> <span class="Variable"><span class="Variable">@</span>loaded</span>[name]
+    <span class="FunctionName">execute_hook</span>(base, options, block)
+  <span class="Keyword">else</span>
+    <span class="Variable"><span class="Variable">@</span>load_hooks</span>[name] <span class="Operators">&lt;&lt;</span> [block, options]
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Хеш <code>@loaded</code> содержит уже загруженные модули или классы. Это позволяет сразу
+  выполнить блок, если на момент его объявления требуемый модуль был уже загружен.</p>
+      </aside>
+</div>
+    <p>то увидим, что там происходит обычное конвертирование блока в прок и сохранение
+его в хеше <code>@load_hooks</code>.</p>
+
+    <p>Метод <code>ActiveSupport.run_load_hooks</code> не только извлекает из хеша сохраненные блоки
+(<code>hook</code>), он еще и передает сам модуль/класс, который был загружен
+(<code>base</code>). Это необходимо для того, чтобы изменить контекст, в котором будет
+происходить выполнение блока (<code>self</code> в блоке должен быть загруженным классом или
+модулем, ведь мы хотим изменить именно его свойства!).</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">self.run_load_hooks</span>(<span class="Variable">name<span class="Variable">,</span> base <span class="Operators">=</span> <span class="Variable">Object</span></span>)
+  <span class="Variable"><span class="Variable">@</span>loaded</span>[name] <span class="Operators">=</span> base
+  <span class="Variable"><span class="Variable">@</span>load_hooks</span>[name].<span class="FunctionName">each</span> <span class="Keyword">do </span>|<span class="Variable">hook</span>, <span class="Variable">options</span>|
+    <span class="FunctionName">execute_hook</span>(base, options, hook)
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Наконец, <code>ActiveSupport.execute_hook</code> просто выполняет блок в контексте
+загруженного модуля/класса (благодаря методу <code>instance_eval</code> блок выполняется,
+а <code>self</code> внутри него становится равным <code>base</code>, т. е. загруженным классом или
+модулем):</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">self.execute_hook</span>(<span class="Variable">base<span class="Variable">,</span> options<span class="Variable">,</span> block</span>)
+  <span class="Keyword">if</span> options[<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>yield</span>]
+    block.<span class="FunctionName">call</span>(base)
+  <span class="Keyword">else</span>
+    base.<span class="FunctionName">instance_eval</span>(<span class="Operators">&amp;</span>block)
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  </section></section></article><footer><hr>
+<section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
+</div>
+<p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav><section class="signature"><p><a href="/author">Андрей Малышко</a>, 12.08.2011</p></section></footer>
+</div>
+<script>var _gaq=[['_setAccount','UA-24784248-1'],['_trackPageview']];
+(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+s.parentNode.insertBefore(g,s)}(document,'script'));</script><script src="https://apis.google.com/js/plusone.js"></script>
+</body>
+</html>
