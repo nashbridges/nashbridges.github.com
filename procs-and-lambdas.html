@@ -35,6 +35,7 @@
 <li><a rel="tag" href="/tag/dsl">DSL</a></li>
 <li><a rel="tag" href="/tag/sinatra">Sinatra</a></li>
 <li><a rel="tag" href="/tag/yield">yield</a></li>
+<li><a rel="tag" href="/tag/ror">Ruby on Rails</a></li>
 </ul></section><nav class="table-of-contents"><ul>
 <li><a href="#yield-is-not-enough">Не yield'ом единым</a></li>
 <li><ul><li><a href="#startup">Сервис «Который час?»</a></li></ul></li>
@@ -53,9 +54,20 @@
 </ul></li>
 <li><a href="#playing-with-closures">Игры с замыканиями</a></li>
 <li><a href="#short-lambda">Короткая лямбда</a></li>
+<li><a href="#method-as-object">Метод как объект</a></li>
+<li><ul>
+<li><a href="#method-extraction">Извлечение</a></li>
+<li><a href="#method-creation">Создание</a></li>
+</ul></li>
+<li><a href="#summary">Итоговая таблица</a></li>
 <li><a href="#application">Процедурные объекты на практике</a></li>
-<li><ul><li><a href="#active-support-hooks">Длительный старт в Ruby on Rails</a></li></ul></li>
-</ul></nav><p>Как только ваш вестибулярный аппарат освоился с <a href="http://nashbridges.me/blocks-in-ruby#passing-control">прыжками между методом и
+<li><ul><li><a href="#active-support-hooks">Загрузочные хуки в Ruby on Rails</a></li></ul></li>
+</ul></nav><section class="revision faded"><h3>Послемыслия и работа над ошибками</h3>
+
+  <ul>
+<li>добавлены раздел «Метод как объект» и сводная таблица (16.08.11)</li>
+    <li>упрощено описание хуков в Rails (16.08.11)</li>
+  </ul></section><p>Как только ваш вестибулярный аппарат освоился с <a href="http://nashbridges.me/blocks-in-ruby#passing-control">прыжками между методом и
 блоком</a> при участии <code>yield</code>, пора переходить к более
 серьезным вещам.</p>
 
@@ -116,7 +128,7 @@ get <span class="String"><span class="String">'</span>/london<span class="String
 <span class="Keyword">end</span>
 </code></pre>
 
-      <aside><p>Комментарий с кодировкой обязателен для программ, написанных не латиницей.<br><code>Time.now</code> возвращает текущее время в часовом поясе сервера (он может быть,
+      <aside><p>Комментарий с кодировкой обязателен для файлов, написанных не латиницей.<br><code>Time.now</code> возвращает текущее время в часовом поясе сервера (он может быть,
   например, в США). Метод <code>utc</code> переводит его в время по Гринвичу.</p>
       </aside>
 </div>
@@ -419,7 +431,7 @@ Ruby добавляет к первой уточнение в скобках. Н
 Методу даже не дали выполнить <code>puts</code>, чтобы напечатать «Чо за дела?!» (эти слова
 вернул сам метод после аварийного <code>return</code>).</p>
 
-    <p>Тот факт, что Ruby пытается выполнить <code>return</code> из окружения, где был <em>определен</em>
+    <p>Тот факт, что Ruby пытается выполнить <code>return</code> из окружения (метода), где был <em>определен</em>
 блок прока, а не из того, где он вызван (в примере с казино эти окружения совпали),
 может приводить к ошибкам <code>LocalJumpError</code>.</p>
 
@@ -836,36 +848,246 @@ Ruby добавляет к первой уточнение в скобках. Н
 
   <p>Но кроме выигрыша в несколько символов, эта запись не дает никакого преимущества,
 и честно говоря, больше сбивает с толку человека, привыкшего к блоковой записи.</p>
-</section><section><h2 id="application">Процедурные объекты на практике</h2>
+</section><section><h2 id="method-as-object">Метод как объект</h2>
 
-  <p>Процедурные объекты решают две задачи:</p>
+  <p>Итак, проки и лямбды возникли, чтобы решать две задачи:</p>
 
   <ul>
-<li>позволить отложенное выполнение (<em>lazy evaluation</em>) блока;</li>
+<li>позволить отложенное выполнение кода в блоке;</li>
     <li>избежать дублирования кода, когда нескольким методам нужно передать один и
 тот же блок.</li>
   </ul>
-<section><h3 id="active-support-hooks">Длительный старт в Ruby on Rails</h3>
+<p>Если задуматься, то метод занимается тем же самым: он не дает нам повторять
+в разных местах программы одинаковый код и позволяет отложить его выполнение до
+тех пор, пока не будет вызван сам метод. Тонкую грань между методами и процедурными
+объектами в Ruby еще больше стирает возможность совершать превращения «метод-объект».</p>
 
-    <p>В Ruby on Rails есть довольно объемные модули (например,
-<a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb">activerecord/lib/active_record/base.rb</a>: увесистый сам по
-себе + загружает еще 22 файла), их время загрузки значительно. Конфигурация вашего
-сайта производится при старте сервера. И если часть настроек в ней касается такого
-объемного модуля, его придется вначале загрузить, что скажется на общем времени
-старта приложения. Тогда как можно просто подождать, когда модуль понадобится
-в деле, будет загружен, и уже потом произвести его донастройку.</p>
+  <section><h3 id="method-extraction">Извлечение</h3>
 
-    <p>Для этих целей в Rails используются <a href="https://github.com/rails/rails/blob/master/activesupport/lib/active_support/lazy_load_hooks.rb">загрузочные хуки</a>.
-Каждый модуль в самом конце содержит вызов метода <code>ActiveSupport.run_load_hooks</code>
-(т. е. он будет выполнен только после загрузки и парсинга текущего
-и всех подключаемых в нем файлов), например</p>
+    <div class="with-notes">
+      <p>Методы всегда привязаны к объекту, потому что обладают способностью «видеть»
+переменные этого объекта (<em>@instance_variables</em>). «Оторвать» метод
+можно с сохранением этой привязки или без нее. В первом случае у выбранного
+объекта вызывается метод <code>method</code>, который принимает в качестве аргумента имя
+извлекаемого метода и возвращает объект класса <code>Method</code>.</p>
+
+      <aside><p>Отвязанные метод-объекты (<em>unbound method objects</em>) в этой статье не
+  рассматриваются.</p>
+      </aside>
+</div>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">MottoOfADay</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">initialize</span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>     <span class="Variable"><span class="Variable">@</span>motto</span> <span class="Operators">=</span> <span class="Keyword">case</span> <span class="FunctionName">rand</span>(<span class="Number">3</span>)
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>       <span class="Keyword">when</span> <span class="Number">0</span> <span class="Keyword">then</span> <span class="String"><span class="String">"</span>Будь друг, да не вдруг.<span class="String">"</span></span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>       <span class="Keyword">when</span> <span class="Number">1</span> <span class="Keyword">then</span> <span class="String"><span class="String">"</span>Одним гусем поля не вытопчешь.<span class="String">"</span></span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span>       <span class="Keyword">when</span> <span class="Number">2</span> <span class="Keyword">then</span> <span class="String"><span class="String">"</span>Чужой дурак — веселье, а свой — бесчестье.<span class="String">"</span></span>
+:<span class="Number">007</span>?<span class="Operators">&gt;</span>     <span class="Keyword">end</span>
+:<span class="Number">008</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">009</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">say_motto</span>
+:<span class="Number">010</span>?<span class="Operators">&gt;</span>     puts <span class="Variable"><span class="Variable">@</span>motto</span>
+:<span class="Number">011</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">012</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">013</span> <span class="Operators">&gt;</span> todays_motto <span class="Operators">=</span> <span class="LibraryClassType">MottoOfADay</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;MottoOfADay:0x9e066b4 @motto="Одним гусем поля не вытопчешь."&gt;</span>
+:<span class="Number">014</span> <span class="Operators">&gt;</span> print_motto <span class="Operators">=</span> todays_motto.<span class="FunctionName">method</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>say_motto</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Method: MottoOfADay#say_motto&gt;</span>
+:<span class="Number">015</span> <span class="Operators">&gt;</span> print_motto.<span class="FunctionName">class</span>
+ =&gt; <span class="Variable">Method</span>
+:<span class="Number">016</span> <span class="Operators">&gt;</span> print_motto.<span class="FunctionName">call</span>
+Одним гусем поля не вытопчешь.
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+      <aside><p>Извлекается не абстрактный метод <code>say_motto</code>, а метод конкретного
+  объекта, у которого переменная экземпляра <code>@motto</code> имеет определенное значение.</p>
+      </aside>
+</div>
+
+    <p>Как видим, метод-объект ведет себя точно так же, как и объект класса <code>Proc</code>. Забавно, мы даже можем
+сделать конверсию в процедурный объект с помощью уже известного метода <code>to_proc</code>:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">017</span> <span class="Operators">&gt;</span> proc_object <span class="Operators">=</span> print_motto.<span class="FunctionName">to_proc</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Proc:0x9e0b434 (lambda)&gt;</span>
+:<span class="Number">018</span> <span class="Operators">&gt;</span> proc_object.<span class="FunctionName">lambda?</span>
+ =&gt; <span class="BuiltInConstant">true</span>
+</code></pre>
+
+      <aside><p>Так вот почему лямбда такая противная по части аргументов: она
+  в родственных связях с методом!</p>
+      </aside>
+</div>
+
+    <p>Но кому может понадобиться метод в виде объекта? Не проще ли вызывать
+его как обычно, по имени? Проще, и на практике так обычно и поступают.
+Но теоретически наличие метод-объекта позволяет обращаться со всеми выполняемыми
+конструкциями в Ruby через один интерфейс — метод <code>call</code>. Это может быть
+полезно для DSL, в которых методы могут принимать на усмотрение пользователя
+либо блоки, либо уже имеющиеся в классе методы. Например, как это дает
+делать в Ruby on Rails семейство методов <code>_filter</code>:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> ApplicationController<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> ActionController::Base</span>
+  before_filter <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>require_login</span>
+
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">require_login</span>
+<span class="Comment">    <span class="Comment">#</span>...</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <p>или так:</p>
+
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> ApplicationController<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> ActionController::Base</span>
+  before_filter <span class="Keyword">do </span>|<span class="Variable">controller</span>|
+<span class="Comment">    <span class="Comment">#</span>...</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Можно хранить и блоки, и методы в виде объектов в одном массиве/хеше, их
+  вызов будет одинаков для всех — <code>call</code>.</p>
+
+        <p>В Ruby on Rails внутреннее устройство методов <code>_filter</code> намного сложнее и не
+  использует метод-объекты.</p>
+      </aside>
+</div>
+
+  </section><section><h3 id="method-creation">Создание</h3>
+    <p>В отличие от извлечения методов, их создание в объектах «на лету» (динамически)
+очень популярно в Ruby. Один из способов это сделать — вызов метода класса <code>define_method</code>,
+который принимает в качестве аргумента имя, а также блок, который становится телом метода.</p>
+
+    <p>Это завершает кругооборот блоко-проко-методов в природе, ведь мы знаем, что в качестве блока
+можно передавать и процедурные объекты. Если нужно, чтобы метод принимал
+аргументы, они определяются как аргументы блока.</p>
+
+    <p>Вот как можно избежать дублирования кода (потеряв при этом в его читаемости)
+при создании похожих методов:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">Friend</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="String"><span class="String">%w(</span>hello goodbye thanks<span class="String">)</span></span>.<span class="FunctionName">each</span> <span class="Keyword">do </span>|<span class="Variable">action</span>|
+:<span class="Number">003</span> <span class="Operators">&gt;</span>     say <span class="Operators">=</span> lambda { |<span class="Variable">name</span>| <span class="String"><span class="String">"</span><span class="String"><span class="String">#{</span>action<span class="String">}</span></span>, <span class="String"><span class="String">#{</span>name<span class="String">}</span></span>!<span class="String">"</span></span> }
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>     define_method <span class="String"><span class="String">"</span>say_<span class="String"><span class="String">#{</span>action<span class="String">}</span></span><span class="String">"</span></span>, <span class="Operators">&amp;</span>say
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; [<span class="String"><span class="String">"</span>hello<span class="String">"</span></span>, <span class="String"><span class="String">"</span>goodbye<span class="String">"</span></span>, <span class="String"><span class="String">"</span>thanks<span class="String">"</span></span>]
+:<span class="Number">007</span> <span class="Operators">&gt;</span> denny <span class="Operators">=</span> <span class="LibraryClassType">Friend</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Friend:0x8ea5328&gt;</span>
+:<span class="Number">008</span> <span class="Operators">&gt;</span> denny.<span class="FunctionName">say_hello</span> <span class="String"><span class="String">"</span>Alan<span class="String">"</span></span>
+ =&gt; <span class="String"><span class="String">"</span>hello, Alan!<span class="String">"</span></span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> denny.<span class="FunctionName">say_goodbye</span> <span class="String"><span class="String">"</span>Shirley<span class="String">"</span></span>
+ =&gt; <span class="String"><span class="String">"</span>goodbye, Shirley!<span class="String">"</span></span>
+</code></pre>
+
+      <aside><p>Поскольку лямбда является замыканием, она имеет доступ к внешнему для нее
+  аргументу <code>action</code> блока. Метод <code>each</code> последовательно передает в этот блок элементы
+  массива, в результате они попадают как в имя будущего метода, так и в его тело.</p>
+      </aside>
+</div>
+
+  </section></section><section><h2 id="summary">Итоговая таблица</h2>
+
+  <p>Чтобы не запутаться в этих методах, блоках и лямбдах, вот все их свойства в одной таблице.</p>
+
+  <table id="procs-and-lambdas-table">
+<thead><tr>
+<th class="main">Свойства</th>
+  <th>Метод</th>
+  <th>Метод-объект</th>
+  <th>Лямбда</th>
+  <th>Прок</th>
+  <th>Блок</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="main">является объектом, может передаваться как аргумент</td>
+  <td>нет</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+  <td>нет</td>
+</tr>
+<tr>
+<td class="main">является замыканием</td>
+  <td>нет</td>
+  <td>нет</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+</tr>
+<tr>
+<td class="main">создает локальную область видимости переменных</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+</tr>
+<tr>
+<td class="main">видит переменные экземпляра (@variables)</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да/нет<sup>*)</sup>
+</td>
+  <td>да/нет<sup>*)</sup>
+</td>
+  <td>да/нет<sup>*)</sup>
+</td>
+</tr>
+<tr>
+<td class="main">считает аргументы</td>
+  <td>да</td>
+  <td>да</td>
+  <td>да</td>
+  <td>нет</td>
+  <td>нет</td>
+</tr>
+<tr>
+<td class="main">
+<code>return</code> вызывает <code>return</code> у окружающего метода</td>
+  <td>нет</td>
+  <td>нет</td>
+  <td>нет</td>
+  <td>да</td>
+  <td>да</td>
+</tr>
+</tbody>
+<tfoot><tr>
+<td colspan="6">
+<sup>*)</sup> — да, если определено в окружении экземпляра
+(например, внутри метода), за счет того, что является замыканием
+</td>
+</tr></tfoot>
+</table></section><section><h2 id="application">Процедурные объекты на практике</h2>
+
+  <section><h3 id="active-support-hooks">Загрузочные хуки в Ruby on Rails</h3>
+
+    <p>Установить хук в Ruby означает обозначить некое событие, какую-то точку в процессе
+выполнения приложения, дать ей название, и когда это событие наступает, гарантировать
+выполнение т. н. callback-методов (процедур), повешенных на этот хук.</p>
+
+    <p>Фреймворк Ruby on Rails состоит из нескольких, довольно тяжеловесных (с большим
+количеством файлов), компонентов. Для того, чтобы решить проблему
+настройки этих компонентов из приложения в процессе загрузки, в нем реализованы
+<a href="https://github.com/rails/rails/blob/master/activesupport/lib/active_support/lazy_load_hooks.rb">загрузочные хуки</a>.</p>
+
+    <p>Т. к. Ruby спускается по файлу сверху вниз, останавливаясь на каждом <code>require</code>,
+загружая подключаемый файл (и этот процесс рекурсивно продолжается до тех пор,
+пока в очередном файле больше не встречается <code>require</code>), разработчики Rails
+помещают в конце основного файла, отвечающего за загрузку компонента, строчку вроде:</p>
 
     <pre><code class="slush_poppies"><span class="LibraryClassType">ActiveSupport</span>.<span class="FunctionName">run_load_hooks</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>active_record</span>, <span class="LibraryClassType">ActiveRecord</span>::<span class="FunctionName">Base</span>)
 </code></pre>
 
-    <p>Этот метод запустит все назначенные для модуля ActiveRecord
-хуки, которые являются обычными блоками и задаются с помощью <code>ActiveSupport.on_load</code>.
-Таким образом, блок, настраивающий ActiveRecord,</p>
+    <p>Она сигнализирует, что загрузка ActiveRecord завершена, и запускает все callback'и,
+повешенные на этот хук. Сам callback задается с помощью обычного блока:</p>
 
     <pre><code class="slush_poppies"><span class="LibraryClassType">ActiveSupport</span>.<span class="FunctionName">on_load</span>(<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>active_record</span>) <span class="Keyword">do</span>
   self.<span class="FunctionName">time_zone_aware_attributes</span> <span class="Operators">=</span> <span class="BuiltInConstant">true</span>
@@ -873,7 +1095,11 @@ Ruby добавляет к первой уточнение в скобках. Н
 <span class="Keyword">end</span>
 </code></pre>
 
-    <p>будет выполнен только тогда, когда произойдет загрузка этого модуля.</p>
+    <p>Может оказаться, что файл, отвечающий за настройку ActiveRecord, будет загружен
+раньше самого ActiveRecord (ленивая загрузка с целью сократить время старта
+приложения). Поэтому использование таких хуков гарантирует, что блок (а
+следовательно, и настройка) будет выполнен только после того, как компонент
+был загружен.</p>
 
     <p>Если мы посмотрим на реализацию метода <code>ActiveSupport.on_load</code></p>
 
@@ -887,40 +1113,13 @@ Ruby добавляет к первой уточнение в скобках. Н
 <span class="Keyword">end</span>
 </code></pre>
 
-      <aside><p>Хеш <code>@loaded</code> содержит уже загруженные модули или классы. Это позволяет сразу
-  выполнить блок, если на момент его объявления требуемый модуль был уже загружен.</p>
+      <aside><p>Хеш <code>@loaded</code> содержит уже загруженные классы. Если загрузка уже произошла,
+  можно безопасно выполнить блок сразу в процессе его объявления.</p>
       </aside>
 </div>
     <p>то увидим, что там происходит обычное конвертирование блока в прок и сохранение
-его в хеше <code>@load_hooks</code>.</p>
-
-    <p>Метод <code>ActiveSupport.run_load_hooks</code> не только извлекает из хеша сохраненные блоки
-(<code>hook</code>), он еще и передает сам модуль/класс, который был загружен
-(<code>base</code>). Это необходимо для того, чтобы изменить контекст, в котором будет
-происходить выполнение блока (<code>self</code> в блоке должен быть загруженным классом или
-модулем, ведь мы хотим изменить именно его свойства!).</p>
-
-    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">self.run_load_hooks</span>(<span class="Variable">name<span class="Variable">,</span> base <span class="Operators">=</span> <span class="Variable">Object</span></span>)
-  <span class="Variable"><span class="Variable">@</span>loaded</span>[name] <span class="Operators">=</span> base
-  <span class="Variable"><span class="Variable">@</span>load_hooks</span>[name].<span class="FunctionName">each</span> <span class="Keyword">do </span>|<span class="Variable">hook</span>, <span class="Variable">options</span>|
-    <span class="FunctionName">execute_hook</span>(base, options, hook)
-  <span class="Keyword">end</span>
-<span class="Keyword">end</span>
-</code></pre>
-
-    <p>Наконец, <code>ActiveSupport.execute_hook</code> просто выполняет блок в контексте
-загруженного модуля/класса (благодаря методу <code>instance_eval</code> блок выполняется,
-а <code>self</code> внутри него становится равным <code>base</code>, т. е. загруженным классом или
-модулем):</p>
-
-    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">self.execute_hook</span>(<span class="Variable">base<span class="Variable">,</span> options<span class="Variable">,</span> block</span>)
-  <span class="Keyword">if</span> options[<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>yield</span>]
-    block.<span class="FunctionName">call</span>(base)
-  <span class="Keyword">else</span>
-    base.<span class="FunctionName">instance_eval</span>(<span class="Operators">&amp;</span>block)
-  <span class="Keyword">end</span>
-<span class="Keyword">end</span>
-</code></pre>
+его в хеше <code>@load_hooks</code>. Метод <code>run_load_hooks</code> просто находит все проки, сохраненные
+под конкретным названием хука, и по очереди вызывает их.</p>
 
   </section></section></article><footer><hr>
 <section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
