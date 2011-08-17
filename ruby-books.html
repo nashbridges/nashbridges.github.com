@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Ресурсы и книги по Ruby и Ruby on Rails</title>
+<meta content="Список литературы для изучающего язык Ruby и фреймворк Ruby on Rails
+" name="description">
+<meta content="2011, Andriy Malyshko, http://nashbridges.me" name="author">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="/favicon.ico" rel="shortcut icon">
+<link href="/stylesheets/site.css" rel="stylesheet">
+<link href="/feed.xml" rel="alternate" title="Лента новостей" type="application/atom+xml">
+<link href="http://nashbridges.me/ruby-books" rel="canonical">
+<script src="http://yandex.st/modernizr/1.7/modernizr.min.js"></script>
+</head>
+<body>
+<div class="page-container">
+<header><h1>Ruby и <dfn title="точка">.</dfn>
+</h1>
+<nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav></header><article><h1>Ресурсы и книги по Ruby и Ruby on Rails</h1>
+<section class="metadata"><p><span class="faded">сложность материала: </span>для начинающих</p>
+<span class="faded">теги: </span><ul class="tags"><li><a rel="tag" href="/tag/books">литература</a></li></ul></section><nav class="table-of-contents"><ul>
+<li><a href="#ruby-section">Ruby</a></li>
+<li><ul>
+<li><a href="#russian-ruby-books">Книги на русском</a></li>
+<li><a href="#english-ruby-books">Книги на английском</a></li>
+<li><a href="#ruby-resources">Ресурсы</a></li>
+</ul></li>
+<li><a href="#rails-section">Ruby on Rails</a></li>
+<li><ul>
+<li><a href="#russian-rails-books">Книги на русском</a></li>
+<li><a href="#english-rails-books">Книги на английском</a></li>
+<li><a href="#rails-resources">Ресурсы</a></li>
+</ul></li>
+</ul></nav><section><p>Здесь я постараюсь поддерживать актуальный список книг и справочников (в том числе
+онлайн), которые можно использовать для изучения Ruby и фреймворка Ruby on Rails.</p>
+
+  <div class="with-notes">
+    <p>Если вы совсем не знаете английский, <em>начинайте учить немедленно</em>.</p>
+    <aside><p>Вам не нужно знать его безукоризненно, да и словарный запас
+  среднестатистического рубиста не поражает воображение.</p>
+    </aside>
+</div>
+
+  <p>Нельзя сказать,
+что сам Ruby остается неизменным: на момент написания этих строк ожидается выход
+Ruby 1.9.3, а где-то там вдалеке маячит Ruby 2.0. И всё равно любой уже выпущенный учебник
+даст вам 80-90% необходимых знаний об этом языке.</p>
+
+  <p>Но Rails — настолько бурно растущий
+организм, что за ним не поспевают даже западные авторы (я уже молчу о наших
+издательствах и переводчиках). Происходят кардинальные изменения в архитектуре,
+появляются новые gem'ы, и только вы начинаете их использовать, авторы решают
+переписать их с нуля. Поэтому самой актуальной информацией для вас будут только
+комментарии в исходном коде, заметки в западных блогах и обсуждения проблем
+на форумах и Гитхабе.</p>
+</section><section><h2 id="ruby-section">Ruby</h2>
+
+  <section><div class="with-notes">
+      <h3 id="russian-ruby-books">Книги на русском</h3>
+
+      <aside><p>Тут и далее — год выхода оригинала.</p>
+      </aside>
+</div>
+
+    <ul>
+<li>
+<strong>Изучаем Ruby, Фитцджеральд М., 2007</strong>. Учебник написан легко, но
+достаточно поверхностно: плохо раскрыта важная
+тема блоков и процедур, нет ничего про семейство <code>_eval</code> методов. Версия 1.9 не
+упоминается (Ruby 1.9.0 вышел только в декабре 2007). Но для знакомства с языком,
+изучения управляющих конструкций и встроенных классов вполне сойдет.</li>
+      <li>
+<strong><a href="http://www.shokhirev.com/mikhail/ruby/ltp/title.html">Учись программировать, Пайн К., 2006</a></strong>. Простое и понятное
+введение в Ruby, но как и с Фитцджеральдом, показаны только основы. Как полноценный
+учебник — нет.</li>
+      <li>
+<strong>Язык программирования Ruby, Флэнаган Д., Мацумото Ю., 2008</strong>. Очень хороший
+<em>справочник</em> по Ruby, который наконец-то перевели. Описано абсолютно всё, что
+нужно знать рубисту, достаточно скрупулезно и с примерами. Указаны отличия между
+версиями 1.8 и 1.9 (есть пару несущественных расхождений с актуальной на сегодня
+1.9.2). Новичка может отпугнуть сухой стиль изложения.</li>
+      <li class="faded">
+<strong>Программирование на языке Ruby, Фултон Х., 2001</strong>. Книга-недоразумение.
+Такое впечатление, что написана для стареющего рубиста-маразматика, потому что начинается
+с обсуждения непонятных новичку тонкостей языка, а затем скатывается до
+прописных истин и никому не нужных рецептов.</li>
+    </ul></section><section><h3 id="english-ruby-books">Книги на английском</h3>
+
+    <ul>
+<li>
+<strong>The Well-Grounded Rubyist, David A. Black, 2009</strong>. Наверное, лучший учебник,
+который мне доводилось видеть. Правильный порядок изложения материала, затронуты
+все темы. Написано достаточно сдержанно, но без злоупотребления терминологией
+и заковыристыми фразами. Рассматривается только
+синтаксис версии 1.9. Очень рекомендую.</li>
+      <li>
+<strong>Programming Ruby 1.9 (3rd edition): The Pragmatic Programmers' Guide, Dave Thomas,
+Chad Fowler, Andy Hunt, 2009</strong>. А это самый известный учебник
+по Ruby, легендарный Pickaxe <span class="faded">(pickaxe с английского — киркомотыга, изображена
+на обложке книги)</span>. Хотя у меня при чтении местами возникало легкое ощущение хаоса,
+непоследовательности, на конечный результат это не влияет. Хорошая книга, после
+которой создается правильная картина видения мира Ruby. Выбор между первыми
+двумя учебниками — на вкус читателя.</li>
+      <li class="faded">
+<strong>Beginning Ruby: From Novice to Professional, Peter Cooper, 2007</strong>. Недостойна
+внимания при наличии любой из первых двух.</li>
+      <li class="faded">
+<strong>Eloquent Ruby, Russ Olsen, 2011</strong>. Аналогично предыдущей.</li>
+      <li class="faded">
+<strong>The Book of Ruby, Huw Collingbourne, 2011</strong>. Аналогично предыдущей.</li>
+      <li class="faded">
+<a href="http://mislav.uniqpath.com/poignant-guide/"><strong>why's (poignant) Guide to Ruby</strong></a>. Это интересная, смешная и
+при этом поучительная книга. Настоящее художественное произведение, и к сожалению,
+именно поэтому вряд ли можно порекомендовать ее в качестве учебного материала.
+Плюс чтобы оценить всю прелесть wGtR, нужно хорошо владеть английским.</li>
+      <li class="faded">
+<strong>Ruby Cookbook, Lucas Carlson, Leonard Richardson, 2006</strong>. Просто бесполезно.</li>
+      <li>
+<strong>Ruby Best Practices, Gregory Brown, 2009</strong>. Вполне может рассматриваться как
+книга «для повышения квалификации» после учебника Блека или Томаса.
+Автор книги является создателем gem'ов Prawn и Ruport, поэтому приводит жизненные
+примеры и объясняет некоторые полезные идиомы в Ruby.</li>
+      <li class="faded">
+<strong>Metaprogramming Ruby, Paolo Perrotta, 2010</strong>. Слишком много
+повторений базового учебного материала. Целевая аудитория книги — бывшие Java
+программисты.</li>
+      <li class="faded">
+<strong>Practical Ruby Projects: Ideas for the Eclectic Programmer, Topher
+Cyll, 2008</strong>. Интересна разве что детальным описанием создания пошаговой
+стратегии на Ruby.</li>
+      <li>
+<strong>Design Patterns In Ruby, Russ Olsen, 2008</strong>. Обязательна для тех, кто не
+знаком с паттернами проектирования, описанными в классической книге
+«Приемы объектно-ориентированного программирования» (в оригинале — «Design
+Patterns: Elements of Reusable Object-Oriented Software», или неофициально —
+«Gang of Four book» (GoF)). Вместо того, чтобы продираться сквозь C++ в оригинальной
+книжке, лучше изучать паттерны на примере Ruby. Написана доступным языком.</li>
+      <li>
+<strong>Refactoring in Ruby, William C. Wake, Kevin Rutherford, 2010</strong>. Неплохая
+книга по рефакторингу кода. Особенно полезна наличием последней части, где
+можно потренироваться на живых примерах программ.</li>
+      <li>
+<strong>Refactoring: Ruby Edition, Jay Fields, Shane Harvie, Martin Fowler, 2010</strong>.
+Переиздание известной книги Фаулера, в котором примеры на Java заменили Ruby
+кодом. Скорее всё-таки справочник (или каталог), чем учебник. Взаимозаменяема
+с предыдущей книгой.</li>
+      <li>
+<strong>The RSpec Book, David Chelimsky and others, 2010</strong>. Обязательная к прочтению
+книга, описывающая разработку на основе тестов и поведения.</li>
+    </ul></section><section><h3 id="ruby-resources">Ресурсы</h3>
+
+    <ul>
+<li>
+<strong><a href="http://www.ruby-doc.org/">Help and documentation for the Ruby programming language</a></strong>.
+Актуальная документация для каждой из версий Ruby.</li>
+      <li>
+<strong><a href="http://railsapi.com/doc/ruby-v1.9.2/">Ruby 1.9.2 Searchable API</a></strong>. Удобный поиск по документации
+Ruby 1.9.2.</li>
+    </ul></section></section><section><h2 id="rails-section">Ruby on Rails</h2>
+
+  <section><h3 id="russian-rails-books">Книги на русском</h3>
+
+    <ul>
+<li>
+<strong><a href="http://russian.railstutorial.org/">Ruby on Rails Tutorial, Хартл М., 2011</a></strong> Единственная актуальная
+книга по Rails, переведенная на русский язык. Очень хорошее введение, ведь
+в нем подается пример правильной разработки на основе тестов и с использованием
+Git. Версии 3.0-3.1.</li>
+      <li class="faded">
+<strong>Гибкая разработка веб-приложений в среде Rails (2-е изд.),
+Томас Д., Хэнссон Д. Х., 2006</strong>. Устарела, версия 1.2</li>
+      <li class="faded">
+<strong>Путь Rails, Фернандес О., 2008</strong>. Устарела, версии 1.2-2.0.</li>
+      <li class="faded">
+<strong>Rails. Сборник рецептов, Фоулер Ч., 2006</strong>. Устарела, версия 1.1</li>
+    </ul></section><section><h3 id="english-rails-books">Книги на английском</h3>
+
+    <ul>
+<li>
+<strong>Agile Web Development with Rails (4th edition), Sam Ruby, Dave Thomas,
+David Heinemeier Hansson, 2011</strong>. Не менее известная, чем Pickaxe, книга от
+Pragmatic Programmers. Кривая обучения подымается плавно: введение
+в MVC, затем пошаговое создание интернет-магазина и более детальное изучение всех
+компонентов Rails. Версия 3.0.3.</li>
+      <li class="faded">
+<strong>Beginning Rails 3, Cloves Carneiro Jr., Rida Al Barazi, 2010</strong>.
+Недостойна внимания при наличии первой.</li>
+      <li>
+<strong>The Rails 3 Way, Obie Fernandez, 2011</strong>. Глубокое изучение внутренностей
+Rails. Очень рекомендуется после прочтения Rails Tutorial или «Agile…».
+Версия 3.0.</li>
+      <li>
+<strong>Rails Antipatterns, Chad Pytel, Tammer Saleh, 2011</strong>. Книга о том, как <em>не
+надо</em> писать с помощью Rails. Хороший повод поучиться на чужих ошибках. Версии
+2.0-3.0.</li>
+      <li>
+<strong>Crafting Rails Applications, José Valim, 2011</strong>. Сборник свежих рецептов от
+Жозе Валима, одного из активных разработчиков Rails. Будет интересной для
+создающих ROR-приложения с некоторым опытом. Версия 3.0.3.</li>
+    </ul></section><section><h3 id="rails-resources">Ресурсы</h3>
+
+    <ul>
+<li>
+<strong><a href="http://groups.google.com/group/ror2ru/">RubyOnRails to russian</a></strong>. Конференция русскоязычных разработчиков
+на Rails. Огромное количество хаотично разбросанной уникальной информации и
+бесценного опыта. Подписка настойчиво рекомендуется.</li>
+      <li>
+<strong><a href="http://guides.rubyonrails.org/">Ruby on Rails Guides</a></strong>. Руководства, которые обновляются в
+первую очередь после выхода очередной версии Rails.</li>
+      <li>
+<strong><a href="http://api.rubyonrails.org/">Rails API</a></strong>. Документация для текущей стабильной версии Rails.</li>
+      <li>
+<strong><a href="http://railsapi.com">Rails Searchable API Doc</a></strong>. То же самое, только с возможностью
+поиска.</li>
+      <li>
+<strong><a href="https://github.com/rails/rails/">Rails on Github</a></strong>. Исходный код и обнаруженные ошибки.</li>
+      <li>
+<strong><a href="http://stackoverflow.com/questions/tagged/ruby-on-rails">Rails on Stackoverflow</a></strong>. Вопросы и ответы по Rails.</li>
+    </ul></section></section></article><footer><hr>
+<section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
+</div>
+<p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav><section class="signature"><p><a href="/author">Андрей Малышко</a>, 17.08.2011</p></section></footer>
+</div>
+<script>var _gaq=[['_setAccount','UA-24784248-1'],['_trackPageview']];
+(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+s.parentNode.insertBefore(g,s)}(document,'script'));</script><script src="https://apis.google.com/js/plusone.js"></script>
+</body>
+</html>
