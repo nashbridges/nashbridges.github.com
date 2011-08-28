@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Введение в объектно-ориентированный Ruby</title>
+<meta content="Популярно об инкапсуляции, наследовании и полиморфизме. Чтение мантры «Всё в Ruby — объект».
+" name="description">
+<meta content="2011, Andriy Malyshko, http://nashbridges.me" name="author">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="/favicon.ico" rel="shortcut icon">
+<link href="/stylesheets/site.css" rel="stylesheet">
+<link href="/feed.xml" rel="alternate" title="Лента новостей" type="application/atom+xml">
+<link href="http://nashbridges.me/introducing-ruby-oop" rel="canonical">
+<script src="http://yandex.st/modernizr/1.7/modernizr.min.js"></script>
+</head>
+<body>
+<div class="page-container">
+<header><h1>Ruby и <dfn title="точка">.</dfn>
+</h1>
+<nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav></header><article><h1>Введение в объектно-ориентированный Ruby</h1>
+<section class="metadata"><p><span class="faded">сложность материала: </span>для начинающих</p>
+<p><span class="faded">версия Ruby</span>: 1.9</p>
+<p><span class="faded">необходимые знания</span>: создание методов, метод puts, консоль irb</p>
+<span class="faded">теги: </span><ul class="tags">
+<li><a rel="tag" href="/tag/ruby">Ruby</a></li>
+<li><a rel="tag" href="/tag/object">объект</a></li>
+<li><a rel="tag" href="/tag/class">класс</a></li>
+<li><a rel="tag" href="/tag/philoshopy">философия</a></li>
+</ul></section><nav class="table-of-contents"><ul>
+<li><a href="#what-is-object">Что такое объект?</a></li>
+<li><a href="#methods-as-goals">Методы как задачи</a></li>
+<li><a href="#classes">Классы</a></li>
+<li><a href="#calling-method">Вызов метода</a></li>
+<li><a href="#self">Текущий объект</a></li>
+<li><a href="#inheritance-and-object">Наследование и класс Object</a></li>
+<li><a href="#organizing-methods">Организация методов в классе</a></li>
+<li><ul>
+<li><a href="#atomic-methods">Атомарные методы</a></li>
+<li><a href="#method-visibility">Видимость методов</a></li>
+</ul></li>
+<li><a href="#practical-inheritance">Наследование на практике</a></li>
+<li><ul>
+<li><a href="#extensioning">Новые функции</a></li>
+<li><a href="#modifying">Замена запчастей</a></li>
+<li><a href="#about-super">Несколько слов о super</a></li>
+<li><a href="#method-missing">method_missing</a></li>
+</ul></li>
+<li><a href="#modules">Модули</a></li>
+<li><a href="#instance-variables">Переменные объекта</a></li>
+<li><a href="#methods-as-interface">Управление состоянием</a></li>
+<li><ul>
+<li><a href="#getter-and-setter">Геттеры и сеттеры</a></li>
+<li><a href="#object-creation">Создание объекта</a></li>
+</ul></li>
+<li><a href="#singleton-methods">Синглтон методы</a></li>
+<li><a href="#objects-everywhere">Объекты повсюду</a></li>
+<li><a href="#strange-words">Замысловатые термины</a></li>
+</ul></nav><p>В этой статье раскрывается понятие объекта сквозь призму языка Ruby.</p>
+
+<section><h2 id="what-is-object">Что такое объект?</h2>
+
+  <p>Объект в программировании — это черный ящик. Коробочка, внутри которой что-то происходит. Что именно,
+известно только тому, кто спроектировал этот объект, нам же видны только результаты
+его работы.</p>
+
+  <p>Плохо ли это, не знать, что там творится всередине? И да, и нет.</p>
+
+  <div class="with-notes">
+    <p>Если у нас есть кофемашина, всё, что от нас требуется — загрузить
+зёрна, налить воды и воткнуть сетевую вилку в розетку. Какие процессы начинают происходить
+внутри, нам по фонарю. Может быть, сейчас кофемашина начинает прожарку зерен,
+а затем будет их молоть и пропускать через них кипяток. А быть может, она
+соединяется со Всемирной базой готовых вещей и телепортирует оттуда одну порцию горячего
+кофе. На самом деле, нас волнует только то, насколько будет вкусным напиток, который польется
+в подставленную кружку.</p>
+
+    <aside><p>Здесь могла быть реклама ваших кофемашин.</p>
+    </aside>
+</div>
+
+  <p>С другой стороны, если мы не знаем, что машина спроектирована не совсем гуд, и в
+процессе помола вибрирует настолько, что может свалиться со стола, то не сможем в
+этот момент придержать ее рукой. Быть в курсе таких тонкостей — ненормально.
+Но иногда это суровая необходимость, потому что не всегда можно выкинуть такой
+агрегат на свалку и купить в магазине адекватную модель.</p>
+
+  <p>Значит, <em>хорошо спроектированный</em> объект — это штука, которая выполняет некую
+полезную работу и в которой нас интересует лишь две вещи: что мы подаем на вход и
+что получаем на выходе.</p>
+</section><section><h2 id="methods-as-goals">Методы как задачи</h2>
+
+  <p>Каждая задача, которую выполняет объект, оформляется в виде метода. Например,
+логично ожидать, что у нашего объекта-кофемашины есть как минимум один —
+ <code>make_coffee</code> (сварить кофе).</p>
+
+  <p>Чем сложнее объект, тем больше у него задач, а значит — и методов. Но в правильно
+спроектированном объекте все задачи, независимо от количества, не выходят за
+рамки основного предназначения объекта. Если он начинает напоминать швейцарский
+нож, в котором есть вилка, шило, отвертка и открывашка, это тревожный звоночек,
+который говорит о необходимости перепоручения части функционала другому объекту.</p>
+
+  <p>Как методы появляются в объекте? Для этого в Ruby существует целых три возможности.
+Во-первых, объект получает методы от класса, который его создал.</p>
+</section><section><h2 id="classes">Классы</h2>
+
+  <div class="with-notes">
+    <p>Класс в Ruby — это особый объект-родитель, который несет в себе знания о методах
+объекта-сына (<em>instance methods</em>) и может создавать неограниченное число сыновей.
+При этом отцу запрещено пользоваться методами сына, но он может иметь собственные,
+которые сыну не достаются (в их числе, например, метод <code>new</code>, который создает нового сына).</p>
+
+    <aside><p>Так как у каждого сына будет идентичный набор методов, класс
+  является фабрикой для создания семейства однотипных объектов.</p>
+    </aside>
+</div>
+
+  <p>Порожденный объект (его еще называют экземпляром класса) теряет способность класса
+хранить в себе методы «для сыновей» (другими словами, утрачивает репродуктивную
+способность).</p>
+
+  <p class="with-image"><img src="/images/introducing-oop/00-1.png" alt="Отношения класс-экземпляр класса"></p>
+
+  <section><h3>Классы — объекты?!</h3>
+
+    <div class="with-notes">
+      <p>Хмм, но если класс является объектом, значит, должен быть какой-то мегакласс,
+который его породил? В конце концов, методы объекта в классе как-то должны были
+появиться? Ответ на этот вопрос неоднозначный.</p>
+
+      <aside><p>Методы объекта-класса дальше будут называться просто методами класса.</p>
+      </aside>
+</div>
+
+    <p>С одной стороны, в Ruby у каждого объекта (в том числе и у класса) есть т. н.
+синглтон класс (<em>singleton class</em>). Этот «класс» на самом деле не совсем класс,
+потому что не является первопричиной появления объекта, наоборот, он возникает
+как фантомный сателлит уже после его рождения (Ruby создает этот класс автоматически).</p>
+
+    <div class="with-notes">
+      <p>Синглтон классы существуют для того,
+чтобы обеспечить каждый объект собственными методами (и это второй путь получения
+методов для объекта). Для класса они являются единственным источником методов,
+для его сыновей — дополнительным (вместе с методами экземпляров отца).</p>
+
+      <aside><p>О том, как добавлять методы в синглтон класс, <a href="#singleton-methods">ниже</a>.</p>
+      </aside>
+</div>
+
+    <p class="with-image"><img src="/images/introducing-oop/00-2.png" alt="Синглтон класс"></p>
+
+    <p>Однако, теория синглтон класса никак не объясняет, откуда берутся сами классы в Ruby,
+поэтому для сбережения собственного психического здоровья проще считать, что они
+саморождающиеся и возникают…ну, допустим, в результате Большого Взрыва.</p>
+  </section><section><h3>Класс как фабрика</h3>
+
+    <p>Практика показывает: даже если в приложении предполагается создание
+единственного объекта, под него всё равно стоит завести собственный класс (хотя
+в Ruby это совершенно не обязательно): для <a href="http://ru.wikipedia.org/wiki/%D0%9F%D0%BE%D0%B2%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D0%B5_%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%BE%D0%B4%D0%B0">переноса кода между приложениями</a> он
+подходит как нельзя лучше. А уж если объектов с одинаковым функционалом нужно
+много, без класса не обойтись.</p>
+
+    <p>Представьте себе компанию «Гурман», которая производит кофемашины. Сегодня
+великий день, они выходят на рынок с бюджетной моделью «Кофемашина». В ней нет
+всех этих дизайнерских наворотов, зато она умеет хорошо варить кофе.</p>
+
+    <p>Прежде, чем на складе появились коробки с «Кофемашинами», инженеры начертили
+чертеж, в котором подробно указали, как именно должны работать все эти
+объекты. Затем наладчики по этому чертежу настроили конвейер, запустили его и
+получили на выходе серию однотипных объектов. Так вот, класс
+в Ruby — это и чертеж, и конвейер.</p>
+
+    <p>Чтобы создать класс, достаточно его объявить с помощью ключевого слова <code>class</code>, после
+которого указывается константа. Она становится именем класса и ссылкой
+на созданный объект-класс. Затем (словно в чертеже) записывают методы экземпляров
+класса:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">make_coffee</span>
+    puts <span class="String"><span class="String">"</span>Готовим воду и зёрна<span class="String">"</span></span>
+    puts <span class="String"><span class="String">"</span>Варим и наливаем кофе<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p><code>make_coffee</code> — метод, который будет у сыновей объекта <code>CoffeeMachine</code>, но
+  которого нет у него самого.</p>
+      </aside>
+</div>
+  </section></section><section><h2 id="calling-method">Вызов метода</h2>
+
+  <p>Чтобы вызвать метод, Ruby необходима пара: объект и имя
+метода. Не бывает метода «просто так», у каждого есть хозяин.</p>
+
+  <div class="with-notes">
+    <p>Указанному объекту Ruby отправляет сообщение (запрос)
+с названием метода. Объект сверяется со своим списком методов, и если таковой найден,
+выполняет его и возвращает результат. Если запросить у объекта несуществующий
+метод, это приведет к ошибке <code>NoMethodError</code>.</p>
+
+    <aside><p>Если быть точнее, ошибка <a href="#method-missing">возбуждается в методе <code>method_missing</code></a> объекта.</p>
+    </aside>
+</div>
+
+  <p>Самый простой вызов метода выглядит так:</p>
+
+  <pre><code class="slush_poppies">имя_объекта.название_метода
+</code></pre>
+
+  <p>Объект перед вызовом должен существовать. Классы
+создаются в процессе своего объявления, экземпляры классов (преимущественно) —
+с помощью метода класса <code>new</code>.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">CoffeeMachine</span>  <span class="Comment"><span class="Comment">#</span> создаем объект-класс</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">make_coffee</span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>     puts <span class="String"><span class="String">"</span>Готовим воду и зёрна<span class="String">"</span></span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>     puts <span class="String"><span class="String">"</span>Варим и наливаем кофе<span class="String">"</span></span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> saeco <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>  <span class="Comment"><span class="Comment">#</span> создаем экземпляр класса (включаем конвейер)</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x85dd718&gt;</span>
+:<span class="Number">008</span> <span class="Operators">&gt;</span> saeco.<span class="FunctionName">make_coffee</span>
+Готовим воду и зёрна
+Варим и наливаем кофе
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">make_coffee</span>
+<span class="Variable">NoMethodError</span>: undefined method <span class="String"><span class="String">'</span>make_coffee<span class="String">'</span></span> <span class="Keyword">for</span> <span class="Variable">CoffeeMachine</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>Class</span>
+</code></pre>
+
+    <aside><p><code>CoffeeMachine</code> — полноценный объект со своими методами. Как они там появились,
+  будет сказано чуть позже.</p>
+    </aside>
+</div>
+
+  <div class="with-notes">
+
+    <p class="with-image"><img src="/images/introducing-oop/01.png" alt="Создание объекта"></p>
+
+    <aside><p>Синглтон классы на этой схеме не показаны.</p>
+    </aside>
+</div>
+</section><section><h2 id="self">Текущий объект</h2>
+  <p>Ruby разрешает вызывать методы без указания имени объекта, потому что постоянно
+отслеживает т. н. текущий объект (<em>self</em>). На место пропущенного объекта неявно
+подставляется <code>self</code>, чтобы сохранить пару:</p>
+
+  <pre><code class="slush_poppies">make_coffee  <span class="Comment"><span class="Comment">#</span> здесь Ruby предполагает self.make_coffee</span>
+</code></pre>
+
+  <p>Текущий объект в разных точках программы ссылается на разные объекты. Внутри
+метода объекта он является этим объектом. Мы можем легко это проверить:</p>
+
+  <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">Father</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>  <span class="Keyword">def</span> <span class="FunctionName">check_self</span>(<span class="Variable">object</span>)
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>    object <span class="Operators">==</span> self
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>  <span class="Keyword">end</span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">006</span> <span class="Operators">&gt;</span> son <span class="Operators">=</span> <span class="LibraryClassType">Father</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Father:0x82507d0&gt;</span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> son.<span class="FunctionName">check_self</span>(son)
+ =&gt; <span class="BuiltInConstant">true</span>
+:<span class="Number">008</span> <span class="Operators">&gt;</span> son.<span class="FunctionName">check_self</span>(<span class="Variable">Father</span>)
+ =&gt; <span class="BuiltInConstant">false</span>
+</code></pre>
+
+  <p>Прочувствовать <code>self</code> внутри метода поначалу нелегко. Если путаетесь, вспоминайте
+о том, что методы экземпляра — собственность не класса, а будущих объектов, им
+порожденных. Хозяин метода и есть текущий объект внутри него.</p>
+
+  <p>Зато внутри объявления класса (вне методов экземпляра) <code>self</code> указывает на этот
+объект-класс, что выглядит вполне логично.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">Father</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   puts <span class="String"><span class="String">"</span>Внутри объявления класса self — это <span class="String"><span class="String">#{</span><span class="String">self</span><span class="String">}</span></span><span class="String">"</span></span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">print_self</span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>     puts <span class="String"><span class="String">"</span>Внутри метода self — это <span class="String"><span class="String">#{</span><span class="String">self</span><span class="String">}</span></span><span class="String">"</span></span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">006</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+Внутри объявления класса self — это <span class="Variable">Father</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">007</span> <span class="Operators">&gt;</span> son <span class="Operators">=</span> <span class="LibraryClassType">Father</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Father:0x8d29800&gt;</span>
+:<span class="Number">008</span> <span class="Operators">&gt;</span> son.<span class="FunctionName">print_self</span>
+Внутри метода self — это <span class="Comment"><span class="Comment">#</span>&lt;Father:0x8d29800&gt;</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+    <aside><p>Строковое представление экземпляра класса состоит из имени класса-отца и
+  случайно генерируемого идентификатора.</p>
+    </aside>
+</div>
+
+  <p>Хорошо, вернемся к предыдущему примеру с кофемашиной. Там в строке 008 вызывается
+<code>make_coffee</code> объекта <code>saeco</code>, значит, внутри этого метода <code>self</code> является
+объектом <code>saeco</code>. В вызове метода <code>puts</code> пропущен хозяин-объект, поэтому на его
+месте надо представлять <code>self</code>:</p>
+
+  <pre><code class="slush_poppies">self.<span class="FunctionName">puts</span> <span class="String"><span class="String">"</span>Готовим воду и зёрна<span class="String">"</span></span>
+self.<span class="FunctionName">puts</span> <span class="String"><span class="String">"</span>Варим и наливаем кофе<span class="String">"</span></span>
+</code></pre>
+
+  <p>Но постойте, у объекта <code>saeco</code> есть только метод <code>make_coffee</code>! Или нет?</p>
+</section><section><h2 id="inheritance-and-object">Наследование и класс <code>Object</code>
+</h2>
+
+  <p>Все классы в Ruby наследуют от системного класса <code>Object</code> (если явно не указан
+другой класс). Запись</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>является <a href="http://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D0%BD%D1%82%D0%B0%D0%BA%D1%81%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D1%81%D0%B0%D1%85%D0%B0%D1%80">синтаксическим сахаром</a> для</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> Object</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>В Ruby класс может наследовать только от одного класса.</p>
+    </aside>
+</div>
+
+  <p>Знак «меньше» не выполняет никакого
+сравнения, здесь его нужно воспринимать как стрелку влево, и читать «класс <code>Object</code>
+является предком класса <code>CoffeeMachine</code>».</p>
+
+  <p>Когда класс наследует от другого, происходит две вещи. Во-первых, сын
+этого класса будет получать в наследство не только методы экземпляра отца, но и всех
+предков отца. Во-вторых, сам класс получает в наследство методы всех синглтон классов своих
+предков. В общей стопке методы предков оказываются выше,
+собственные — в самом низу. Это важно, потому что поиск методов происходит
+снизу вверх.</p>
+
+  <p>Класс <code>Object</code> не корневой в цепочке наследования, таковым является <code>BasicObject</code>.
+Создание этих классов происходит автоматически во время запуска любого приложения.
+В редких случаях разработчику может понадобится наследовать прямо от <code>BasicObject</code>,
+в этой статье они не рассматриваются.</p>
+
+  <p class="with-image"><img src="/images/introducing-oop/02.png" alt="Наследование классов"></p>
+
+  <div class="with-notes">
+    <p>Таким образом, любой созданный объект получает методы классов <code>Object</code> и
+<code>BasicObject</code>, среди них: методы для самоидентификации <code>class</code>, <code>superclass</code>,
+<code>object_id</code>, <code>nil?</code>, <code>is_a?</code>, <code>==</code>, <code>===</code>; клонирования — <code>clone</code>, <code>dup</code>;
+семейство <code>eval</code> и <code>exec</code> методов; методы-«операторы» <code>lambda</code>,
+<code>raise</code>, <code>require</code>, <code>rand</code>, <code>puts</code>. А объекты-классы ко всему прочему приобретают
+популярные методы <code>attr_accessor</code>, <code>attr_reader</code>, <code>private</code> и т. д.</p>
+
+    <aside><p>Всего таких методов порядка 180.</p>
+    </aside>
+</div>
+
+  <p>Конечно, для самого объекта этот внушительный арсенал, с точки зрения выполнения
+его задачи, бесполезен, зато это позволяет вызывать вышеперечисленные методы
+(важные для самого приложения) у каждого объекта, а значит, в любом контексте.</p>
+</section><section><h2 id="organizing-methods">Организация методов в классе</h2>
+
+  <p>Вновь обратим наши взоры на компанию «Гурман». Дела там улучшаются: продажи
+«Кофемашины» превысили ожидаемые в два раза и держатся на этой отметке, пресса
+публикует восторженные рецензии. Руководство и инвесторы выдохнули с облегчением,
+появилось даже свободное время. А что делают в больших фирмах, когда нечего делать? Верно —
+сражаются за качество!</p>
+
+  <section><h3 id="atomic-methods">Атомарные методы</h3>
+
+    <p>Правила хорошего тона в программировании гласят, что каждую задачу
+нужно разбивать на подзадачи, а подзадачи — на подподзадачи и т. д., до тех пор,
+пока не останутся только атомарные (неделимые) задачи и задачи-менеджеры, в
+которых выполняются первые.</p>
+
+    <p>Такой подход улучшает читаемость кода, последний становится легче тестировать,
+а объекту проще добавлять функционал без создания «кодосвалки».</p>
+
+    <p>Инженеры «Гурмана» проанализировали код «Кофемашины» и заметили, что метод <code>make_coffee</code> —
+хороший кандидат для расчленения, что и было сделано:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">make_coffee</span>
+    <span class="FunctionName">get_water</span>(<span class="Number">200</span>)  <span class="Comment"><span class="Comment">#</span> набираем воду</span>
+    <span class="FunctionName">get_beans</span>(<span class="Number">50</span>)   <span class="Comment"><span class="Comment">#</span> набираем зёрна</span>
+    prepare_beans   <span class="Comment"><span class="Comment">#</span> готовим зёрна</span>
+    boil_water      <span class="Comment"><span class="Comment">#</span> кипятим воду</span>
+    pour_coffee     <span class="Comment"><span class="Comment">#</span> наливаем кофе в чашку</span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">get_water</span>(<span class="Variable">mls</span>)
+    puts <span class="String"><span class="String">"</span>Набираем в ёмкость <span class="String"><span class="String">#{</span>mls<span class="String">}</span></span> мл воды.<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">get_beans</span>(<span class="Variable">grams</span>)
+    puts <span class="String"><span class="String">"</span>Отбираем из контейнера <span class="String"><span class="String">#{</span>grams<span class="String">}</span></span> г зёрен кофе.<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  </section><section><h3 id="method-visibility">Видимость методов</h3>
+
+    <p>По умолчанию все методы объектов публичные (<em>public</em>). Такие можно
+вызывать в любой точке программы. Это означает, что случайно (или даже
+предумышленно) кто угодно способен запустить одну из подзадач «Кофемашины», что может нарушить
+объект (повредить в нем данные или вызвать ошибку). Например, достаточно изменить
+порядок вызова, запустив кипячение до набора воды, и нагревательный элемент кофемашины сгорит.</p>
+
+    <p>Чтобы скрыть часть методов объекта от внешнего мира, их делают частными (<em>private</em>) или
+защищенными (<em>protected</em>). Отличие между ними тонкое, как лезвие японского меча.</p>
+
+    <p>И частный, и защищенный методы могут быть вызваны только там, где он есть у
+<code>self</code>. Грубо говоря, такие методы получится применить только внутри
+других методов этого же объекта (как <code>boil_water</code> вызывается внутри
+<code>make_coffee</code>) или его родственника .</p>
+
+    <div class="with-notes">
+      <p>Отличие между ними в том, что у частного метода объектом вызова может быть
+<em>только</em> <code>self</code>, причем запрещено даже его явно указывать. Метод <code>puts</code> является
+частным, поэтому мы не имеем права писать</p>
+
+      <aside><p><code>self</code> разрешается указывать <a href="#getter-and-setter">для частных методов-сеттеров</a></p>
+      </aside>
+</div>
+
+    <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">boil_water</span>
+  self.<span class="FunctionName">puts</span> <span class="String"><span class="String">"</span>Кипятим воду в ёмкости.<span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Только так:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">boil_water</span>
+  puts <span class="String"><span class="String">"</span>Кипятим воду в ёмкости.<span class="String">"</span></span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p><code>self</code> подразумевается, но не пишется</p>
+      </aside>
+</div>
+
+    <p>Изменить видимость можно с помощью методов класса <code>public</code>, <code>private</code> и <code>protected</code>.
+Если они вызываются без аргументов, то выступают в качестве переключателей
+режима: методы, записанные под ними, получают соответствующую видимость.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">make_coffee</span>
+    <span class="FunctionName">get_water</span>(<span class="Number">200</span>)
+    <span class="FunctionName">get_beans</span>(<span class="Number">50</span>)
+<span class="Comment">    <span class="Comment">#</span>...</span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">protected</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">get_water</span>(<span class="Variable">mls</span>)
+<span class="Comment">    <span class="Comment">#</span> ...</span>
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+      <aside><p>Все методы-подзадачи сделаны защищенными , <code>make_coffee</code> остался публичным.</p>
+
+        <p>Большинство рубистов настаивает на том, чтобы <strong>не выделять отступами</strong> методы
+  <code>private</code> и т. п., оставляя их на одном уровне с объявляемыми методами.</p>
+      </aside>
+</div>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">030</span> <span class="Operators">&gt;</span> saeco <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x8df6940&gt;</span>
+:<span class="Number">031</span> <span class="Operators">&gt;</span> puts self
+main
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">032</span> <span class="Operators">&gt;</span> saeco.<span class="FunctionName">boil_water</span>
+<span class="Variable">NoMethodError</span>: <span class="Keyword">protected</span> method <span class="String"><span class="String">'</span>boil_water<span class="String">'</span></span> called <span class="Keyword">for</span> <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x8df6940&gt;</span>
+:<span class="Number">033</span> <span class="Operators">&gt;</span> saeco.<span class="FunctionName">make_coffee</span>
+Набираем в ёмкость <span class="Number">200</span> мл воды.
+Отбираем из контейнера <span class="Number">50</span> г зёрен кофе.
+Жарим, мелем зёрна и засыпаем в ёмкость.
+Кипятим воду в ёмкости.
+Наливаем кофе в кружку.
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+      <aside><p>Здесь <code>self</code> является объектом <code>main</code> (это текущий объект Ruby по умолчанию), у
+  которого, конечно же, нет метода <code>boil_water</code>, поэтому его вызов
+  запрещен.</p>
+
+        <p>Внутри <code>make_coffee</code> объект <code>self</code> ссылается на <code>saeco</code>, у
+  которого <code>boil_water</code> и остальные методы заданы: вызов легитимен.</p>
+      </aside>
+</div>
+
+    <p>Будь в примере метод <code>boil_water</code> частным, а не защищенным, результат
+был бы точно таким же. Чтобы показать между ними разницу, я создам объект-чистильщик.</p>
+
+    <p>Чистильщик устроен очень просто: он берет объект-кофемашину и запускает у нее
+подзадачи набора, кипячения и слива воды (фактически, он будет пытаться налить кофе,
+но сливаться-то будет только кипяток), таким образом, ёмкость очищается от кофейных
+смол.</p>
+
+    <p>Чистильщиков будет двое: один будет создан с нуля, а другой — наследован от
+«Кофемашины», поэтому у него будут те же методы, что и у самой кофемашины.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">:<span class="Number">034</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">Cleaner</span>
+:<span class="Number">035</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">clean</span>(<span class="Variable">machine</span>)
+:<span class="Number">036</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">get_water</span>(<span class="Number">200</span>)
+:<span class="Number">037</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">boil_water</span>
+:<span class="Number">038</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">pour_coffee</span>
+:<span class="Number">039</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">040</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">041</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">MachineCleaner</span> <span class="Operators">&lt;</span> <span class="Variable">CoffeeMachine</span>
+:<span class="Number">042</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">clean</span>(<span class="Variable">machine</span>)
+:<span class="Number">043</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">get_water</span>(<span class="Number">200</span>)
+:<span class="Number">044</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">boil_water</span>
+:<span class="Number">045</span>?<span class="Operators">&gt;</span>     machine.<span class="FunctionName">pour_coffee</span>
+:<span class="Number">046</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">047</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">048</span> <span class="Operators">&gt;</span> cleaner <span class="Operators">=</span> <span class="LibraryClassType">Cleaner</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Cleaner:0x8dbc2cc&gt;</span>
+:<span class="Number">049</span> <span class="Operators">&gt;</span> machine_cleaner <span class="Operators">=</span> <span class="LibraryClassType">MachineCleaner</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;MachineCleaner:0x8e2450c&gt;</span>
+:<span class="Number">050</span> <span class="Operators">&gt;</span> cleaner.<span class="FunctionName">clean</span>(saeco)
+<span class="Variable">NoMethodError</span>: <span class="Keyword">protected</span> method <span class="String"><span class="String">'</span>get_water<span class="String">'</span></span> called <span class="Keyword">for</span> <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x8df6940&gt;</span>
+:<span class="Number">051</span> <span class="Operators">&gt;</span> machine_cleaner.<span class="FunctionName">clean</span>(saeco)
+Набираем в ёмкость <span class="Number">200</span> мл воды.
+Кипятим воду в ёмкости.
+Наливаем кофе в кружку.
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+      <aside><p>В строке 050 <code>self</code> внутри метода <code>clean</code> — это <code>cleaner</code>, у которого нет
+  методов <code>get_water</code> и т. д., поэтому их вызов у <code>saeco</code> запрещен.</p>
+
+        <p>В строке 051 <code>self</code> внутри метода <code>clean</code> ссылается на <code>machine_cleaner</code>,
+  и поскольку у них с объектом <code>saeco</code> есть общий класс, в котором заданы
+  вызываемые методы, их вызов разрешен.</p>
+
+        <p>Будь методы <code>get_water</code> и т. д. частными, метод <code>clean</code> можно было бы реализовать
+  только в самой кофемашине (из-за запрета явного указания объекта вызова).</p>
+      </aside>
+</div>
+
+  </section></section><section><h2 id="practical-inheritance">Наследование на практике</h2>
+
+  <p>Наследование — это первая вещь, о которой вспоминают в программировании, когда
+нужно модифицировать поведение объекта, но как и любая другая практика, оно не
+является панацеей для всех архитектурных бед.</p>
+
+  <section><h3 id="extensioning">Новые функции</h3>
+
+    <p>Тем временем руководство «Гурмана» поручило инженерам разработать модель «Кофемашины» с
+<a href="http://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BF%D1%83%D1%87%D0%B8%D0%BD%D0%B0%D1%82%D0%BE%D1%80">капучинатором</a>. Раз готовится запуск серии, без класса никуда.</p>
+
+    <p>Конечно, очень хотелось добавить вспомогательный функционал прямо в <code>CoffeeMachine</code>,
+но его трогать нельзя: выпуск старых моделей идёт полным ходом! Что ж, организовали
+новый класс, с кодовым названием «Капучинщик».</p>
+
+    <p>Капучинатор чего должен делать? Взбивать молочную пенку. Создали для этого
+методы:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CappuccinoMachine
+  <span class="Keyword">def</span> <span class="FunctionName">create_foam</span>
+    prepare_milk
+    push_foam
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">prepare_milk</span>
+    puts <span class="String"><span class="String">"</span>Отбираем и кипятим молоко<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">push_foam</span>
+    puts <span class="String"><span class="String">"</span>Выпускаем молочную пенку в чашку<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Но ведь основное предназначение машины — всё-таки варить кофе. «Кофемашина» с этим
+отлично справлялась. Может,
+скопировать метод <code>make_coffee</code> со всеми его подзадачами оттуда? Нет, это
+порочный путь дублирования кода, надежнее использовать наследование:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CappuccinoMachine<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CoffeeMachine</span>
+  <span class="Keyword">def</span> <span class="FunctionName">create_foam</span>
+<span class="Comment">    <span class="Comment">#</span>...</span>
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Таким образом, экземпляры класса <code>CappuccinoMachine</code> получат в распоряжение
+все методы «Кофемашины», что и требовалось. Так расширяют функционал базового
+класса.</p>
+
+    <p>Несомненный плюс этого подхода в том, что если технологи решат, например,
+подправить в «Кофемашине» количество заправляемого кофе, чтобы улучшить вкус напитка,
+эти изменения автоматически отразятся и в «Капучинщике».</p>
+
+    <div class="with-notes">
+      <p class="with-image"><img src="/images/introducing-oop/03.png" alt="Расширение функционала"></p>
+
+      <aside><p>Тут и далее синглтон классы на схеме не показаны.</p>
+      </aside>
+</div>
+
+  </section><section><h3 id="modifying">Замена запчастей</h3>
+
+    <p>Невероятно, но капучинатор произвел фурор у покупателей, модели «Капучинщика»
+сметают с прилавков в день поступления товара! Однако, руководству этого
+мало. Чтобы окончательно завоевать рынок, принято решение выпускать
+модель для бизнес-персонала. Деловым людям всегда некогда: некогда жить, некогда ждать, пока
+машина пожарит, помелет, им нужен мгновенный результат, и многие из-за этого
+стали переходить на растворимый кофе (о ужас-ужас!).</p>
+
+    <p>Но технологи в «Гурмане» не зря хлеб едят, они придумали капсульный процесс.
+Покупаешь готовую капсулу с молотым кофе, закладываешь в машину — и варка пошла.</p>
+
+    <p>Однако, проблема у инженеров: есть уже хорошо зарекомендовавшая себя «Кофемашина»,
+от которой так и хочется позаимствовать части, но вот сам метод <code>make_coffee</code> —
+у него же лишние для капсульной машины <code>get_beans</code> и <code>prepare_beans</code>!</p>
+
+    <p>Как быть? Начать класс с чистого листа? Но тогда придется дублировать вполне
+себе рабочие <code>get_water</code>, <code>boil_water</code>, <code>pour_coffee</code>.</p>
+
+    <p>А что, если опять применить наследование?
+Оказывается, это может помочь, ведь Ruby всегда ищет методы в
+объекте снизу вверх и вызывает первый попавшийся, у которого совпало имя.
+Тогда задав <code>make_coffee</code> в классе-потомке, мы фактически перезаписываем его, потому что
+методы потомков всегда в самом низу, и Ruby не успевает добраться до
+реализации этого же метода в предке.</p>
+
+    <p>Готовый класс будет выглядеть так:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CapsuleMachine<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CoffeeMachine</span>
+  <span class="Keyword">def</span> <span class="FunctionName">make_coffee</span>
+    <span class="FunctionName">get_water</span>(<span class="Number">200</span>)
+    prepare_capsule
+    boil_water
+    pour_coffee
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">prepare_capsule</span>
+    puts <span class="String"><span class="String">"</span>Вскрываем капсулу и высыпаем кофе в ёмкость.<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p class="with-image"><img src="/images/introducing-oop/04.png" alt="Модифицирование функционала"></p>
+  </section><section><h3 id="about-super">Несколько слов о <code>super</code>
+</h3>
+
+    <p>Иногда бывает необходимо выполнить закрытый потомком
+метод предка. Конечно, нет смысла перезаписывать метод, чтобы тут же в нем вызывать
+«оригинальную» версию. Зато бывает полезно выполнить какие-то действия, а затем
+передать управление старой реализации метода (или наоборот, выполнить что-то после).</p>
+
+    <p>Для этого внутри метода вызывается ключевое слово <code>super</code>. Это
+означает «вызови одноименный метод, который определен выше в цепочке наследования».
+Если в найденном методе тоже есть <code>super</code>, Ruby будет подыматься еще выше в
+своем поиске. Может оказаться,
+что методов с таким именем уже нет, это равносильно вызову несуществующего метода.</p>
+
+    <pre><code class="slush_poppies">:<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">OldMan</span>
+:<span class="Number">002</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">say_wisdom</span>
+:<span class="Number">003</span>?<span class="Operators">&gt;</span>     puts <span class="String"><span class="String">"</span>Народу много, а людей немного.<span class="String">"</span></span>
+:<span class="Number">004</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">005</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">006</span> <span class="Operators">&gt;</span> <span class="Keyword">class</span> <span class="Variable">Man</span> <span class="Operators">&lt;</span> <span class="Variable">OldMan</span>
+:<span class="Number">007</span>?<span class="Operators">&gt;</span>   <span class="Keyword">def</span> <span class="FunctionName">say_wisdom</span>
+:<span class="Number">008</span>?<span class="Operators">&gt;</span>     <span class="Keyword">super</span>
+:<span class="Number">009</span>?<span class="Operators">&gt;</span>     puts <span class="String"><span class="String">"</span>Так мой предок говаривал<span class="String">"</span></span>
+:<span class="Number">010</span>?<span class="Operators">&gt;</span>   <span class="Keyword">end</span>
+:<span class="Number">011</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+:<span class="Number">012</span> <span class="Operators">&gt;</span> man <span class="Operators">=</span> <span class="LibraryClassType">Man</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;Man:0x88a0d9c&gt;</span>
+:<span class="Number">013</span> <span class="Operators">&gt;</span> man.<span class="FunctionName">say_wisdom</span>
+Народу много, а людей немного.
+Так мой предок говаривал
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+  </section><section><h3 id="method-missing"><code>method_missing</code></h3>
+
+    <p>Если объект после сверки со своим списком заявляет, что запрашиваемый метод
+отсутствует, Ruby вызывает специальный метод, отвечающий за обработку этого
+события — <code>method_missing</code>.</p>
+
+    <p><code>method_missing</code> есть в каждом объекте, потому что он достается в наследство
+от класса <code>BasicObject</code>, в его стандартной реализации возбуждается ошибка
+<code>NoMethodError</code>.</p>
+
+    <div class="with-notes">
+      <p>Однако, за счет того, что <code>method_missing</code> находится на самой вершине списка
+методов, его можно перезаписать в любом потомке. Что это дает? Имея на руках
+имя отсутствующего метода, его можно создать и тут же вызвать, на лету.</p>
+
+      <aside><p>Динамическое создание методов  в этой статье не рассматривается.</p>
+      </aside>
+</div>
+
+    <p>Такой подход оправдывает себя, например, когда объект выступает посредником и перенаправляет
+вызовы методов другому объекту (получателю). Вместо того, чтобы дублировать
+все методы получателя, они создаются в посреднике по мере выполнения запросов
+с помощью <code>method_missing</code>.</p>
+
+    <p>Следует помнить, что объекты, использующие такую технику, получают серьезный
+пенальти по времени в сравнении с вызовом заранее определенных методов (т. к.
+Ruby приходится вначале пройтись в поиске по <em>всем</em> методам объекта, прежде чем
+вызвать <code>method_missing</code>).</p>
+
+  </section></section><section><h2 id="modules">Модули</h2>
+
+  <p>Что ж, рано или поздно это должно было случиться. Маркетологи «Гурмана», вдохновленные
+успешными продажами капсульной модели, требуют срочно начать выпуск делюкс-версии:
+капсульной кофемашины с капучинатором!</p>
+
+  <p>Кажется, инженеры зашли в тупик. У них есть классическая «Кофемашина» на зёрнах и
+два ее наследника: «Капучинщик» с капучинатором и капсульная
+модель с модифицированным методом <code>make_coffee</code>. Если продолжать наследование и
+дальше, чтобы получить капсульный <code>make_coffee</code> + капучинатор, уйти от дублирования
+кода не получится, какую из последних двух моделей не взять!</p>
+
+  <p>И тут на помощь приходят модули Ruby. Модуль представляет собой именованную
+группу. Если в ней разместить методы, их можно будет «подмешать»
+к методам любого класса.</p>
+
+  <p>Сила модулей
+в том, что он может одновременно входить в состав <em>различных</em> классов, а в
+один класс к тому же можно «подмешивать» <em>различные</em> модули, за счет чего достигается
+сумасшедшее количество комбинаций функциональных возможностей объекта без
+дублирования кода.</p>
+
+  <div class="with-notes">
+    <p>Модули в Ruby тоже являются объектами, однако, в отличие от классов, как объекты
+используются редко. Основное предназначение модуля — быть поставщиком методов
+для классов и отдельных объектов.</p>
+
+    <aside><p>Еще в модули помещают классы, создавая <a href="http://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE_%D0%B8%D0%BC%D1%91%D0%BD_%28%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%29">пространства имен</a>, т. к. в Ruby
+  нет их (пространств) формальной поддержки.</p>
+    </aside>
+</div>
+
+  <p>Методы капучинатора — очень хорошие кандидаты для вынесения в модуль, потому что
+они должны присутствовать сразу в двух моделях (классах) и отсутствовать в двух других.</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">module</span> Cappuccinator
+  <span class="Keyword">def</span> <span class="FunctionName">create_foam</span>
+    prepare_milk
+    push_foam
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">prepare_milk</span>
+    puts <span class="String"><span class="String">"</span>Отбираем и кипятим молоко<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">push_foam</span>
+    puts <span class="String"><span class="String">"</span>Выпускаем молочную пенку в чашку<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>Видимость методов в модуле задается, как и в классе.</p>
+    </aside>
+</div>
+
+  <p>Теперь надо включить этот модуль в «Капучинщик», удалив его старые методы:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CappuccinoMachine<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CoffeeMachine</span>
+  <span class="Keyword">include</span> <span class="Variable">Cappuccinator</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>Очень простой класс :)</p>
+    </aside>
+</div>
+
+  <p>Модель капсульной кофемашины с капучинатором получается так же просто:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CapsuleCappuccino<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CapsuleMachine</span>
+  <span class="Keyword">include</span> <span class="Variable">Cappuccinator</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p class="with-image"><img src="/images/introducing-oop/05.png" alt="Включение модуля"></p>
+
+  <div class="with-notes">
+    <p>Обратите внимание, что методы модуля располагаются <em>над</em> методами экземпляра
+класса, к которому подключается этот модуль. Это означает, что задав одноименный
+метод модуля в классе, мы его перекроем.</p>
+
+    <aside><p>Вызов <code>super</code> позволит добраться до перекрытого метода.</p>
+    </aside>
+</div>
+
+  <p>Раз капсульную машину с капучинатором отнесли к топовой модели, можно
+запрограммировать в ней основы <a href="http://ru.wikipedia.org/wiki/%D0%9B%D0%B0%D1%82%D1%82%D0%B5-%D0%B0%D1%80%D1%82">латте-арта</a>:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CapsuleCappuccino<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CapsuleMachine</span>
+  <span class="Keyword">include</span> <span class="Variable">Cappuccinator</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">push_foam</span>
+    puts <span class="String"><span class="String">"</span>Красивыми узорами выкладываем пену в чашку.<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">private</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>push_foam</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>Методы <code>private</code>, <code>protected</code>, <code>public</code> могут принимать в качестве аргументов
+  символы-имена методов (это альтернативный способ изменить их видимость).</p>
+    </aside>
+</div>
+
+  <p class="with-image"><img src="/images/introducing-oop/06.png" alt="Перезапись методов модуля"></p>
+
+  <p>Но инженеры уже задницей чувствуют, что завтра может поступить команда
+включить латте-арт еще в какую-то модель! Наверное, лучше вынести его в отдельный модуль:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">module</span> LatteArt
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">push_foam</span>
+    puts <span class="String"><span class="String">"</span>Красивыми узорами выкладываем пену в чашку.<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Тогда <code>CapsuleCappuccino</code>, очевидно, можно переписать:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CapsuleCappuccino<span class="InheritedClass"> <span class="InheritedClass">&lt;</span> CapsuleMachine</span>
+  <span class="Keyword">include</span> <span class="Variable">Cappuccinator</span>
+  <span class="Keyword">include</span> <span class="Variable">LatteArt</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Порядок подключения модулей имеет значение, потому что модуль, включенный в класс
+первым, оказывается <em>над</em> модулем, «подмешанным» после него (точно, как
+они записаны в объявлении класса). Следовательно,
+методы последнего будут перекрывать методы все остальных модулей (но все равно
+не смогут перекрыть методы экземпляра класса).</p>
+
+  <p class="with-image"><img src="/images/introducing-oop/07.png" alt="Порядок подключения модулей"></p>
+
+</section><section><h2 id="instance-variables">Переменные объекта</h2>
+
+  <p>У каждого объекта есть внутреннее состояние. Кофемашина должна «знать», включена
+она сейчас или нет, сколько времени осталось до конца приготовления, какой объем
+чашки потребуется, чтобы налить туда готовый кофе и т. д. При этом внутреннее
+состояние объекта должно быть невидимым и недосягаемым для внешнего мира (черный
+ящик всё-таки).</p>
+
+  <p>Локальные переменные методов удовлетворяют последнему условию, но для хранения
+долгосрочной информации не годятся, потому что уничтожаются после выполнения
+метода. Кроме того, они даже не видны в соседних методах, что затрудняет обмен
+информацией между подзадачами.</p>
+
+  <p>Для этих целей в Ruby существуют переменные объекта, их имена всегда начинаются
+с @. Присвоив значение такой переменной, можно быть уверенным, что оно будет
+прочитано из любого метода этого объекта и будет сохранятся до тех пор, пока
+объект существует.</p>
+
+  <p>В отличие от локальных переменных, обращение к неинициализированной (без присвоенного
+раньше значения) переменной объекта не приводит к ошибке, просто возвращается <code>nil</code>.</p>
+</section><section><h2 id="methods-as-interface">Управление состоянием</h2>
+
+  <p>Чтобы извлечь пользу из объекта, с ним нужно взаимодействовать
+и в какой-то мере контролировать процессы, происходящие внутри него. Та же
+кофемашина будет бесполезным хламом, если у нее не будет кнопки «Пуск/Стоп»,
+носика, из которого льется приготовленный кофе, и индикатора, показывающего, что
+устройство работает.</p>
+
+  <p>В Ruby всё взаимодействие с объектом происходит через его методы и только через
+них. Как только это понимаешь, объектно-ориентированный мир становится
+простым до невозможности: есть только объекты, ощетинившиеся иголками методов,
+и всё!</p>
+
+  <p>Поскольку методы могут принимать аргументы, с их помощью мы можем <em>впустить</em>
+внутрь объекта какую-то информацию. А раз каждый метод в Ruby возвращает значение,
+таким образом объект может сообщить нам о своем <em>состоянии</em> или передать <em>результаты</em>
+своей работы.</p>
+
+  <section><h3 id="getter-and-setter">Геттеры и сеттеры</h3>
+
+    <p>Информация, хранящаяся в переменных объекта, секретна и доступна только этому
+ объекту. Но часто возникает ситуация, когда нужно позволить сторонним объектам
+считывать и/или менять значения этих переменных.</p>
+
+    <p>Например, хорошо бы позволить
+устанавливать количество кофе (в чашках), которое должна сварить кофемашина, и
+заодно проверять, какое оно сейчас.
+Для это создается пара обычных методов: <a href="http://ru.wikipedia.org/wiki/%D0%93%D0%B5%D1%82%D1%82%D0%B5%D1%80_%28%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%29">геттер</a> и <a href="http://ru.wikipedia.org/wiki/Setter">сеттер</a>.</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+<span class="Comment">  <span class="Comment">#</span> геттер</span>
+  <span class="Keyword">def</span> <span class="FunctionName">cups_count</span>
+    <span class="Variable"><span class="Variable">@</span>cups_count</span>  <span class="Comment"><span class="Comment">#</span> отдаем наружу (показываем) значение переменной</span>
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span> сеттер</span>
+  <span class="Keyword">def</span> <span class="FunctionName">cups_count=</span>(<span class="Variable">count</span>)
+    <span class="Variable"><span class="Variable">@</span>cups_count</span> <span class="Operators">=</span> count  <span class="Comment"><span class="Comment">#</span> присваиваем значение, пришедшее извне</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Кстати, в Ruby есть очень удобный метод класса — <code>attr_accessor</code>, который создаст эту
+пару методов на лету.</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">attr_accessor</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>cups_count</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>Имя сеттера вовсе не обязательно заканчивать символом <code>=</code>, можно использовать, например:</p>
+
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine2
+<span class="Comment">  <span class="Comment">#</span> неудобный сеттер</span>
+  <span class="Keyword">def</span> <span class="FunctionName">set_cups_count</span>(<span class="Variable">count</span>)
+    <span class="Variable"><span class="Variable">@</span>cups_count</span> <span class="Operators">=</span> count
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <p>но тогда присваивать значение придется так:</p>
+
+    <pre><code class="slush_poppies">machine <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine2</span>.<span class="FunctionName">new</span>
+machine.<span class="FunctionName">set_cups_count</span>(<span class="Number">1</span>)
+</code></pre>
+
+    <p>А вот если сеттер был задан со знаком равенства в конце имени, Ruby добавляет к
+присваиванию ложку синтаксического сахара:</p>
+
+    <pre><code class="slush_poppies">machine <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+machine.<span class="FunctionName">cups_count</span> <span class="Operators">=</span> <span class="Number">1</span>  <span class="Comment"><span class="Comment">#</span> то же, что и machine.cups_count=(1)</span>
+</code></pre>
+
+    <p>Этот синтаксический сахар, правда, может привести к недоразумениям, потому что
+по умолчанию Ruby воспринимает присваивание как команду инициализировать локальную
+переменную.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">attr_accessor</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>cups_count</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">set_default_cups_count</span>
+    cups_count <span class="Operators">=</span> <span class="Number">1</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+
+:<span class="Number">008</span> <span class="Operators">&gt;</span> nespresso <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x904d61c&gt;</span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> nespresso.<span class="FunctionName">set_default_cups_count</span>
+ =&gt; <span class="Number">1</span>
+:<span class="Number">010</span> <span class="Operators">&gt;</span> nespresso.<span class="FunctionName">cups_count</span>
+ =&gt; <span class="BuiltInConstant">nil</span>
+</code></pre>
+
+      <aside><p>Мы подразумевали вызов метода <code>cups_count=</code> у объекта <code>self</code>, но вместо этого
+  Ruby создал локальную переменную (<code>@cups_count</code> не было присвоено значение).</p>
+      </aside>
+</div>
+
+    <p>По этой причине у всех сеттеров обязательно нужно указывать объект вызова, даже
+если это <code>self</code> (если сеттер является частным, где <code>self</code> указывать запрещено,
+Ruby делает поблажку).</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">attr_accessor</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>cups_count</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">set_default_cups_count</span>
+    self.<span class="FunctionName">cups_count</span> <span class="Operators">=</span> <span class="Number">1</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+
+:<span class="Number">008</span> <span class="Operators">&gt;</span> bosch <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x914801c&gt;</span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> bosch.<span class="FunctionName">set_default_cups_count</span>
+ =&gt; <span class="Number">1</span>
+:<span class="Number">010</span> <span class="Operators">&gt;</span> bosch.<span class="FunctionName">cups_count</span>
+ =&gt; <span class="Number">1</span>
+</code></pre>
+
+      <aside><p>Еще можно указывать настоящее имя метода: <code>cups_count= 1</code> (
+  без пробела перед знаком равенства), но такой подход чреват ошибками в случае
+  возможных опечаток.</p>
+      </aside>
+</div>
+
+  </section><section><h3 id="object-creation">Создание объекта</h3>
+
+    <p>Практически всегда при создании объекта приходится задавать его начальное состояние.
+Например, хотелось бы сразу при создании кофемашины устанавливать объем варимого
+кофе в чашках.</p>
+
+    <p>Проблема состоит в том, что сам объект создается методом класса <code>new</code>, а у объекта-класса
+нет доступа к переменным объекта-сына. Чтобы ее решить, существует соглашение,
+по которому все действия, связанные с созданием объекта, нужно проводить в его
+собственном методе
+<code>initialize</code>. Ruby автоматически делает этот метод частным и вызывает одновременно с
+методом <code>new</code> класса.</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">attr_accessor</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>cups_count</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">initialize</span>(<span class="Variable">count <span class="Operators">=</span> <span class="Number">1</span></span>)
+    <span class="Variable"><span class="Variable">@</span>cups_count</span> <span class="Operators">=</span> count
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+
+:<span class="Number">008</span> <span class="Operators">&gt;</span> bosch <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>(<span class="Number">2</span>)
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x917f5f8&gt;</span>
+:<span class="Number">009</span> <span class="Operators">&gt;</span> bosch.<span class="FunctionName">cups_count</span>
+ =&gt; <span class="Number">2</span>
+</code></pre>
+
+      <aside><p>Аргументы <code>new</code> прозрачно передаются <code>initialize</code>.</p>
+      </aside>
+</div>
+
+  </section></section><section><h2 id="singleton-methods">Синглтон методы</h2>
+
+  <p>Пока мы разбирались с геттеро-сеттерами, руководство «Гурмана» поставило перед инженерами
+очередную задачу: каждый раз, когда с конвейера сходит тысячная кофемашина, должна
+раздаваться радостная мелодия, вдохновляющая работников на трудовые подвиги.</p>
+
+  <p>До сих пор инженеры занимались проектированием собственно кофемашин, но ведь
+это не обязанность кофемашины — считать, сколько ее было
+выпущено, и уж тем более подавать какие-то увеселительные сигналы. И вряд ли это
+обязанность конвейера (класса) — играть мелодии. Скорее всего, этим должен заниматься
+специальный объект, Радостный Счетчик.</p>
+
+  <p>Однако, тут у инженеров проблема: как Счетчик узнает о том, что с конвейера сошел
+очередной готовый объект? Если задуматься, то это событие происходит одновременно с
+вызовом метода <code>new</code> класса. И уж если с чего начинать, так с него: нужно перезаписать
+этот метод, вклинив в него оповещение Счетчика о созданном объекте.</p>
+
+  <p>Мы уже знаем, что метод <code>new</code> класса попадает из синглтон класса <code>BasicObject</code>.
+Но как его перезаписать (перекрыть)? Для этого нужно задать метод экземпляра в синглтон классе,
+который ближе к объекту — в его собственном.</p>
+
+  <p>Методы синглтон класса еще называют синглтон методами. Чтобы их задать,
+ существует простая форма записи:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">def</span> имя_объекта.название_синглтон_метода
+<span class="Comment"> <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Значит, можно перезаписать метод <code>new</code> следующим образом:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">CoffeeMachine.new</span>
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p class="with-image"><img src="/images/introducing-oop/08.png" alt="Создание синглтон метода"></p>
+
+  <p>Еще мы знаем, что внутри объявления класса <code>self</code> и есть этот класс. Поэтому
+синглтон методы можно определять прямо внутри класса:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">self.new</span>  <span class="Comment"><span class="Comment">#</span> self == CoffeeMachine</span>
+<span class="Comment">    <span class="Comment">#</span>...</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Наконец, в Ruby есть возможность открыть объявление синглтон класса и записывать
+там его методы:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> <span class="Variable"><span class="Variable">&lt;&lt;</span> CoffeeMachine</span>
+<span class="Comment"> <span class="Comment">#</span> ...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>а внутри объявления класса это будет выглядеть как:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">class</span> <span class="Variable"><span class="Variable">&lt;&lt;</span> self</span>
+    <span class="Keyword">def</span> <span class="FunctionName">new</span>
+<span class="Comment">      <span class="Comment">#</span>...</span>
+    <span class="Keyword">end</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>Опытные рубисты рекомендуют использовать объявление синглтон класса только в
+  случае крайней необходимости, предпочитая ему объявление синглтон методов через
+  <code>def self.xxx</code>: даже если они не уместятся в один экран, <code>self</code>
+  ясно даст понять, что это за метод.</p>
+    </aside>
+</div>
+
+  <p>Что же должен делать новый метод <code>new</code>? Очевидно, он должен обратиться к «оригинальному»
+методу и создать объект, после чего отправить сообщение Радостному Счетчику.
+Однако, поскольку сам метод должен возвращать созданный объект, его придется
+временно сохранять в локальной переменной:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">self.new</span>
+    machine <span class="Operators">=</span> <span class="Keyword">super</span> <span class="Comment"><span class="Comment">#</span> создаем объект с помощью метода new предка</span>
+<span class="Comment">    <span class="Comment">#</span> как-то уведомляем Счетчик</span>
+    machine <span class="Comment"><span class="Comment">#</span> возвращаем созданный объект (неявный return)</span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Попробуем теперь представить сам Радостный Счетчик. Бесспорно, он должен хранить
+у себя количество созданных объектов — нужна переменная. Когда должен происходить
+проигрыш мелодии? Когда это количество кратно тысяче. Значит, нужен хитрый
+сеттер, который будет не только присваивать переменной значение, но и делать
+проверку на кратность.</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> HappyCounter
+  <span class="Keyword">attr_reader</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>count</span> <span class="Comment"><span class="Comment">#</span> удобный способ создать геттер</span>
+
+<span class="Comment">  <span class="Comment">#</span> сеттер</span>
+  <span class="Keyword">def</span> <span class="FunctionName">count=</span>(<span class="Variable">value</span>)
+    <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">=</span> value
+    play_melody <span class="Keyword">if</span> <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">%</span> <span class="Number">1000</span> <span class="Operators">==</span> <span class="Number">0</span> <span class="Comment"><span class="Comment">#</span> проверяем остаток от деления</span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">initialize</span>
+    <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">=</span> <span class="Number">0</span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">private</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">play_melody</span>
+    puts <span class="String"><span class="String">"</span>Та-дааам!!!<span class="String">"</span></span>
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Хммм, сеттер публичный, выходит, любители танцев могут безнаказанно устанавливать
+любое количество выпущенных объектов, кратное тысяче, и плясать до упаду. Но и
+сделать его частным нельзя, иначе как тогда увеличивать переменную <code>@count</code>?</p>
+
+  <p>Но ведь можно изолировать весь Счетчик, сделав его собственностью объекта
+<code>CoffeeMachine</code>! Тогда взаимодействовать со Счетчиком сможет только сам конвейер.
+Для этого в <code>CoffeeMachine</code> понадобится переменная для хранения объекта и сеттер
+(а вот геттера не будет, тогда к созданному Счетчику извне никто не доберется).</p>
+
+  <p>Сеттер можно задать так:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">self.counter=</span>(<span class="Variable">object</span>)
+    <span class="Variable"><span class="Variable">@</span>counter</span> <span class="Operators">=</span> object
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>А можно воспользоваться методом класса <code>attr_writer</code>, но для этого понадобится
+«войти» в синглтон класс:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">class</span> <span class="Variable"><span class="Variable">&lt;&lt;</span> self</span>
+    <span class="Keyword">attr_writer</span> <span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>counter</span>
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+    <aside><p>Пожалуй, это один из немногих случаев, когда без явного объявления синглтон
+  класса не обойтись, потому что методы <code>attr_*</code> — частные.</p>
+    </aside>
+</div>
+
+  <p>Теперь становится понятно, как уведомить Счетчик о создании нового объекта:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Keyword">class</span> CoffeeMachine
+  <span class="Keyword">def</span> <span class="FunctionName">self.new</span>
+    machine <span class="Operators">=</span> <span class="Keyword">super</span>
+    <span class="Variable"><span class="Variable">@</span>counter</span>.<span class="FunctionName">count</span> <span class="Operators">+=</span> <span class="Number">1</span> <span class="Comment"><span class="Comment">#</span> то же, что и @counter.count = @counter.count + 1</span>
+    machine
+  <span class="Keyword">end</span>
+
+<span class="Comment">  <span class="Comment">#</span>...</span>
+<span class="Keyword">end</span>
+
+:<span class="Number">030</span> <span class="Operators">&gt;</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">counter</span> <span class="Operators">=</span> <span class="LibraryClassType">HappyCounter</span>.<span class="FunctionName">new</span>
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;HappyCounter:0x8738edc @count=0&gt;</span>
+:<span class="Number">031</span> <span class="Operators">&gt;</span> <span class="Number">999</span>.<span class="FunctionName">times</span> <span class="Keyword">do</span>
+:<span class="Number">032</span> <span class="Operators">&gt;</span>   <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+:<span class="Number">033</span>?<span class="Operators">&gt;</span> <span class="Keyword">end</span>
+ =&gt; <span class="Number">999</span>
+:<span class="Number">034</span> <span class="Operators">&gt;</span> premium_machine <span class="Operators">=</span> <span class="LibraryClassType">CoffeeMachine</span>.<span class="FunctionName">new</span>
+Та<span class="Operators">-</span>дааам!!!
+ =&gt; <span class="Comment"><span class="Comment">#</span>&lt;CoffeeMachine:0x8930c80&gt;</span>
+</code></pre>
+
+    <aside><p><code>times</code> — метод объекта 999 (см. следующий раздел), с его помощью «Кофемашина»
+  была создана 999 раз.</p>
+    </aside>
+</div>
+
+</section><section><h2 id="objects-everywhere">Объекты повсюду</h2>
+
+  <p>Очень легко дается понимание объектов, которые являются примерными копиями
+материальных вещей из реальной жизни. Вот объект Автомобиль: у него есть <em>масса</em>,
+<em>цвет</em> и <em>максимальная скорость</em>, он может <em>проехать</em> из точки А в точку Б, причем
+не один, а вместе с объектом Груз и объектом Водитель. Мы даже легко можем
+представить, что Автомобиль — составной объект, внутри которого есть Двигатель,
+Коробка передач и Топливный бак, а <em>масса</em> и <em>максимальная скорость</em> являются
+сложными и непостоянными величинами, зависящими от всех этих составляющих.</p>
+
+  <p>Гораздо сложнее увидеть в качестве объекта совершенно абстрактные понятия.</p>
+
+  <p>Число в Ruby — объект. В жизни они — самая настоящая абстракция: если
+семь самураев или семь футов под килем можно хотя бы увидеть, то просто семь
+существует только в голове мыслящего существа. И тут — бац! — Ruby, словно
+пифагореец, который считал, что весь мир построен из чисел,
+шокирует нас заявлением, что число — объект, и его можно пощупать.</p>
+
+  <p>Но что полезного может делать семерка как объект? Это же просто число! Оказывается, работы
+немало: в Ruby каждое число отвечает за сложение себя с другим объектом.
+И за вычитание, и остальные арифметические
+операции — тоже. Там, где другой интерпретатор сказал бы «ага, 2 плюс 3 — это
+же пять!», Ruby говорит двойке «вот тебе тройка, складывайся с ней как хочешь».</p>
+
+  <p>Может, арифметика за счет объекта и кажется немного притянутой за уши,
+тем более, что Ruby всё равно дает использовать соответствующие методы под видом
+привычных операторов (синтаксический сахар). Вместо того, чтобы писать</p>
+
+  <pre><code class="slush_poppies"><span class="Number">2</span>.<span class="Operators">+</span>(<span class="Number">3</span>)
+</code></pre>
+
+  <p>пишем обычное</p>
+
+  <pre><code class="slush_poppies"><span class="Number">2</span> <span class="Operators">+</span> <span class="Number">3</span>
+</code></pre>
+
+  <p>Правомерность обеих записей, скорее, дает ощущение целосности и последовательности в
+мире Ruby. Ведь не одним сложением ограничивается число. Взять, к примеру,
+определение его четности. Можно использовать известную технику
+с остатком от деления на два:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">if</span> <span class="Number">7</span> <span class="Operators">%</span> <span class="Number">2</span> <span class="Operators">==</span> <span class="Number">0</span>
+<span class="Comment">  <span class="Comment">#</span> если семь — четное, что-то делаем</span>
+<span class="Keyword">end</span>
+</code></pre>
+
+  <p>Можно даже вынести эту логику в отдельный метод:</p>
+
+  <pre><code class="slush_poppies"><span class="Keyword">def</span> <span class="FunctionName">is_even?</span>(<span class="Variable">number</span>)
+  number <span class="Operators">%</span> <span class="Number">2</span> <span class="Operators">==</span> <span class="Number">0</span>
+<span class="Keyword">end</span>
+
+<span class="FunctionName">is_even?</span>(<span class="Number">7</span>) <span class="Comment"><span class="Comment">#</span> =&gt; false</span>
+</code></pre>
+
+  <p>Но в любом случае мы пытаемся определить <em>внутреннее</em> свойство числа с помощью
+<em>внешней</em> функции, в то время, как более натуральным было бы отдать это на откуп
+черному ящику. И то, что числа являются в Ruby объектами, позволяет легко это сделать:</p>
+
+  <div class="with-notes">
+    <pre><code class="slush_poppies"><span class="Number">7</span>.<span class="FunctionName">even?</span> <span class="Comment"><span class="Comment">#</span> =&gt; false</span>
+</code></pre>
+
+    <aside><p><code>even?</code> — такой же метод целого числа, как и <code>+</code>.</p>
+    </aside>
+</div>
+
+  <p>Подобная «самостоятельность» простых типов данных и контейнеров (массивы, хеши)
+выглядит настолько логичной и
+правильной, что привыкаешь к ней мгновенно. Например, строки «знают» о том, какой
+они длины и умеют переводить себя в верхний регистр, массивы могут сортироваться
+и отбрасывать элементы-дубликаты.</p>
+
+  <pre><code class="slush_poppies"><span class="String"><span class="String">"</span>Ruby<span class="String">"</span></span>.<span class="FunctionName">length</span> <span class="Comment"><span class="Comment">#</span> =&gt; 4</span>
+<span class="String"><span class="String">"</span>Ruby<span class="String">"</span></span>.<span class="FunctionName">upcase</span> <span class="Comment"><span class="Comment">#</span> =&gt; "RUBY"</span>
+[<span class="Number">1</span>, <span class="Number">3</span>, <span class="Number">4</span>, <span class="Number">2</span>].<span class="FunctionName">sort</span> <span class="Comment"><span class="Comment">#</span> =&gt; [1, 2, 3, 4]</span>
+[<span class="Number">1</span>, <span class="Number">3</span>, <span class="Number">3</span>, <span class="Number">2</span>].<span class="FunctionName">uniq</span> <span class="Comment"><span class="Comment">#</span> =&gt; [1, 3, 2]</span>
+</code></pre>
+
+  <p><code>true</code>, <code>false</code> и <code>nil</code>, которые во многих языках являются ключевыми словами, в
+Ruby тоже объекты.</p>
+
+  <pre><code class="slush_poppies"><span class="BuiltInConstant">false</span>.<span class="FunctionName">nil?</span> <span class="Comment"><span class="Comment">#</span> =&gt; false</span>
+<span class="BuiltInConstant">nil</span>.<span class="FunctionName">nil?</span> <span class="Comment"><span class="Comment">#</span> =&gt; true</span>
+</code></pre>
+
+  <div class="with-notes">
+    <p>Объекты, представляющие простые типы данных, создаются в процессе упоминания их
+в тексте программы, нет особой необходимости использовать <code>Array.new</code> или <code>Hash.new</code>,
+достаточно записать нужный литерал: <code>[ ]</code> или <code>{ }</code>.</p>
+
+    <aside><p>А у числовых классов даже нет метода <code>new</code>.</p>
+    </aside>
+</div>
+
+  <p>Единственная магия, которую невозможно объяснить в рамках языка — как Ruby
+получает само значение из объекта, который представляет простой тип
+данных. Даже если бы и существовал метод, который возвращал это значение,
+оно всё равно было бы еще одним объектом (поскольку в Ruby всё — объект).
+Но к этому дуализму тоже быстро привыкаешь: тройка для Ruby одновременно и число 3, и объект.</p>
+</section><section><h2 id="strange-words">Замысловатые термины</h2>
+
+  <ul>
+<li>способность объекта быть черным ящиком — <em>инкапсуляция</em>;</li>
+    <li>совокупность публичных методов объекта составляют его <em>интерфейс</em>;</li>
+    <li>возможность перекрывать методы в потомках — <em>полиморфизм</em>.</li>
+  </ul></section></article><footer><hr>
+<section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
+</div>
+<p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav><section class="signature"><p><a href="/author">Андрей Малышко</a>, 28.08.2011</p></section></footer>
+</div>
+<script>var _gaq=[['_setAccount','UA-24784248-1'],['_trackPageview']];
+(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+s.parentNode.insertBefore(g,s)}(document,'script'));</script><script src="https://apis.google.com/js/plusone.js"></script>
+</body>
+</html>

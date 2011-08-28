@@ -4,11 +4,23 @@
   <id>http://nashbridges.me/</id>
   <link href="http://nashbridges.me/"/>
   <link href="http://nashbridges.me/feed.xml" rel="self"/>
-  <updated>2011-08-17T00:00:00+03:00</updated>
+  <updated>2011-08-28T00:00:00+03:00</updated>
   <author>
     <name>Andriy Malyshko</name>
     <email>mail@nashbridges.me</email>
   </author>
+  <entry>
+    <title>&#x412;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435; &#x432; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x43D;&#x43E;-&#x43E;&#x440;&#x438;&#x435;&#x43D;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x439; Ruby</title>
+    <link rel="alternate" href="http://nashbridges.me/introducing-ruby-oop"/>
+    <id>http://nashbridges.me/introducing-ruby-oop</id>
+    <published>2011-08-28T00:00:00+03:00</published>
+    <updated>2011-08-28T00:00:00+03:00</updated>
+    <author>
+      <name>Andriy Malyshko</name>
+    </author>
+    <summary>&#x41F;&#x43E;&#x43F;&#x443;&#x43B;&#x44F;&#x440;&#x43D;&#x43E; &#x43E;&#x431; &#x438;&#x43D;&#x43A;&#x430;&#x43F;&#x441;&#x443;&#x43B;&#x44F;&#x446;&#x438;&#x438;, &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x438; &#x438; &#x43F;&#x43E;&#x43B;&#x438;&#x43C;&#x43E;&#x440;&#x444;&#x438;&#x437;&#x43C;&#x435;. &#x427;&#x442;&#x435;&#x43D;&#x438;&#x435; &#x43C;&#x430;&#x43D;&#x442;&#x440;&#x44B; &#xAB;&#x412;&#x441;&#x451; &#x432; Ruby &#x2014; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#xBB;.
+</summary>
+  </entry>
   <entry>
     <title>&#x420;&#x435;&#x441;&#x443;&#x440;&#x441;&#x44B; &#x438; &#x43A;&#x43D;&#x438;&#x433;&#x438; &#x43F;&#x43E; Ruby &#x438; Ruby on Rails</title>
     <link rel="alternate" href="http://nashbridges.me/ruby-books"/>
