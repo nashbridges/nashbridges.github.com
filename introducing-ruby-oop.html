@@ -31,6 +31,7 @@
 <li><a rel="tag" href="/tag/ruby">Ruby</a></li>
 <li><a rel="tag" href="/tag/object">объект</a></li>
 <li><a rel="tag" href="/tag/class">класс</a></li>
+<li><a rel="tag" href="/tag/module">модуль</a></li>
 <li><a rel="tag" href="/tag/philoshopy">философия</a></li>
 </ul></section><nav class="table-of-contents"><ul>
 <li><a href="#what-is-object">Что такое объект?</a></li>
@@ -1147,11 +1148,15 @@ Ruby делает поблажку).</p>
 <span class="Comment">  <span class="Comment">#</span> сеттер</span>
   <span class="Keyword">def</span> <span class="FunctionName">count=</span>(<span class="Variable">value</span>)
     <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">=</span> value
-    play_melody <span class="Keyword">if</span> <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">%</span> <span class="Number">1000</span> <span class="Operators">==</span> <span class="Number">0</span> <span class="Comment"><span class="Comment">#</span> проверяем остаток от деления</span>
+    play_melody <span class="Keyword">if</span> premium_count?
   <span class="Keyword">end</span>
 
   <span class="Keyword">def</span> <span class="FunctionName">initialize</span>
     <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">=</span> <span class="Number">0</span>
+  <span class="Keyword">end</span>
+
+  <span class="Keyword">def</span> <span class="FunctionName">premium_count?</span>
+    <span class="Variable"><span class="Variable">@</span>count</span> <span class="Operators">%</span> <span class="Number">1000</span> <span class="Operators">==</span> <span class="Number">0</span> <span class="Comment"><span class="Comment">#</span> проверяем остаток от деления</span>
   <span class="Keyword">end</span>
 
   <span class="Keyword">private</span>
