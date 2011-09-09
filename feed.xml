@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Ruby &#x438; &#x442;&#x43E;&#x447;&#x43A;&#x430;</title>
+  <title>Ruby и точка</title>
   <id>http://nashbridges.me/</id>
   <link href="http://nashbridges.me/"/>
   <link href="http://nashbridges.me/feed.xml" rel="self"/>
@@ -10,7 +10,7 @@
     <email>mail@nashbridges.me</email>
   </author>
   <entry>
-    <title>&#x412;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435; &#x432; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x43D;&#x43E;-&#x43E;&#x440;&#x438;&#x435;&#x43D;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x439; Ruby</title>
+    <title>Введение в объектно-ориентированный Ruby</title>
     <link rel="alternate" href="http://nashbridges.me/introducing-ruby-oop"/>
     <id>http://nashbridges.me/introducing-ruby-oop</id>
     <published>2011-08-28T00:00:00+03:00</published>
@@ -18,11 +18,11 @@
     <author>
       <name>Andriy Malyshko</name>
     </author>
-    <summary>&#x41F;&#x43E;&#x43F;&#x443;&#x43B;&#x44F;&#x440;&#x43D;&#x43E; &#x43E;&#x431; &#x438;&#x43D;&#x43A;&#x430;&#x43F;&#x441;&#x443;&#x43B;&#x44F;&#x446;&#x438;&#x438;, &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x438; &#x438; &#x43F;&#x43E;&#x43B;&#x438;&#x43C;&#x43E;&#x440;&#x444;&#x438;&#x437;&#x43C;&#x435;. &#x427;&#x442;&#x435;&#x43D;&#x438;&#x435; &#x43C;&#x430;&#x43D;&#x442;&#x440;&#x44B; &#xAB;&#x412;&#x441;&#x451; &#x432; Ruby &#x2014; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#xBB;.
+    <summary>Популярно об инкапсуляции, наследовании и полиморфизме. Чтение мантры «Всё в Ruby — объект».
 </summary>
   </entry>
   <entry>
-    <title>&#x420;&#x435;&#x441;&#x443;&#x440;&#x441;&#x44B; &#x438; &#x43A;&#x43D;&#x438;&#x433;&#x438; &#x43F;&#x43E; Ruby &#x438; Ruby on Rails</title>
+    <title>Ресурсы и книги по Ruby и Ruby on Rails</title>
     <link rel="alternate" href="http://nashbridges.me/ruby-books"/>
     <id>http://nashbridges.me/ruby-books</id>
     <published>2011-08-17T00:00:00+03:00</published>
@@ -30,11 +30,11 @@
     <author>
       <name>Andriy Malyshko</name>
     </author>
-    <summary>&#x421;&#x43F;&#x438;&#x441;&#x43E;&#x43A; &#x43B;&#x438;&#x442;&#x435;&#x440;&#x430;&#x442;&#x443;&#x440;&#x44B; &#x434;&#x43B;&#x44F; &#x438;&#x437;&#x443;&#x447;&#x430;&#x44E;&#x449;&#x435;&#x433;&#x43E; &#x44F;&#x437;&#x44B;&#x43A; Ruby &#x438; &#x444;&#x440;&#x435;&#x439;&#x43C;&#x432;&#x43E;&#x440;&#x43A; Ruby on Rails
+    <summary>Список литературы для изучающего язык Ruby и фреймворк Ruby on Rails
 </summary>
   </entry>
   <entry>
-    <title>&#x41F;&#x440;&#x43E;&#x43A;&#x438; &#x438; &#x43B;&#x44F;&#x43C;&#x431;&#x434;&#x44B;</title>
+    <title>Проки и лямбды</title>
     <link rel="alternate" href="http://nashbridges.me/procs-and-lambdas"/>
     <id>http://nashbridges.me/procs-and-lambdas</id>
     <published>2011-08-12T00:00:00+03:00</published>
@@ -42,11 +42,11 @@
     <author>
       <name>Andriy Malyshko</name>
     </author>
-    <summary>&#x41F;&#x440;&#x43E;&#x446;&#x435;&#x434;&#x443;&#x440;&#x43D;&#x44B;&#x439; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442; &#x432; Ruby, &#x435;&#x433;&#x43E; &#x43E;&#x431;&#x43B;&#x430;&#x441;&#x442;&#x44C; &#x43F;&#x440;&#x438;&#x43C;&#x435;&#x43D;&#x435;&#x43D;&#x438;&#x44F;. &#x427;&#x435;&#x43C; &#x43E;&#x442;&#x43B;&#x438;&#x447;&#x430;&#x44E;&#x442;&#x441;&#x44F; Proc.new &#x438; lambda.
+    <summary>Процедурный объект в Ruby, его область применения. Чем отличаются Proc.new и lambda.
 </summary>
   </entry>
   <entry>
-    <title>Gem &#x433;&#x43B;&#x430;&#x437;&#x430;&#x43C;&#x438; &#x43F;&#x43E;&#x442;&#x440;&#x435;&#x431;&#x438;&#x442;&#x435;&#x43B;&#x44F;</title>
+    <title>Gem глазами потребителя</title>
     <link rel="alternate" href="http://nashbridges.me/gem-for-end-user"/>
     <id>http://nashbridges.me/gem-for-end-user</id>
     <published>2011-08-05T00:00:00+03:00</published>
@@ -54,11 +54,11 @@
     <author>
       <name>Andriy Malyshko</name>
     </author>
-    <summary>&#x41A;&#x430;&#x43A;&#x43E;&#x432;&#x430; &#x438;&#x43D;&#x444;&#x440;&#x430;&#x441;&#x442;&#x440;&#x443;&#x43A;&#x442;&#x443;&#x440;&#x430; &#x43A;&#x43E;&#x434;&#x43E;&#x43E;&#x431;&#x43C;&#x435;&#x43D;&#x430; &#x432; Ruby, &#x43A;&#x430;&#x43A;&#x443;&#x44E; &#x440;&#x43E;&#x43B;&#x44C; &#x432; &#x43D;&#x435;&#x439; &#x438;&#x433;&#x440;&#x430;&#x44E;&#x442; Rubygems, bundler &#x438; RVM. &#x41A;&#x430;&#x43A; &#x441;&#x442;&#x43E;&#x438;&#x442; &#x442;&#x440;&#x430;&#x43A;&#x442;&#x43E;&#x432;&#x430;&#x442;&#x44C; &#x43D;&#x43E;&#x43C;&#x435;&#x440;&#x430; &#x432;&#x435;&#x440;&#x441;&#x438;&#x439;. &#x41A;&#x430;&#x43A; &#x43D;&#x435; &#x43F;&#x43E;&#x433;&#x438;&#x431;&#x43D;&#x443;&#x442;&#x44C; &#x43F;&#x43E;&#x434; &#x437;&#x430;&#x432;&#x430;&#x43B;&#x43E;&#x43C; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43D;&#x44B;&#x445; gem'&#x43E;&#x432;.
+    <summary>Какова инфраструктура кодообмена в Ruby, какую роль в ней играют Rubygems, bundler и RVM. Как стоит трактовать номера версий. Как не погибнуть под завалом установленных gem'ов.
 </summary>
   </entry>
   <entry>
-    <title>&#x411;&#x43B;&#x43E;&#x43A;&#x438; &#x432; Ruby</title>
+    <title>Блоки в Ruby</title>
     <link rel="alternate" href="http://nashbridges.me/blocks-in-ruby"/>
     <id>http://nashbridges.me/blocks-in-ruby</id>
     <published>2011-07-26T00:00:00+03:00</published>
@@ -66,7 +66,7 @@
     <author>
       <name>Andriy Malyshko</name>
     </author>
-    <summary>&#x427;&#x442;&#x43E; &#x43E;&#x431;&#x449;&#x435;&#x433;&#x43E; &#x438; &#x447;&#x435;&#x43C; &#x43E;&#x442;&#x43B;&#x438;&#x447;&#x430;&#x44E;&#x442;&#x441;&#x44F; &#x431;&#x43B;&#x43E;&#x43A;&#x438; &#x438; &#x43C;&#x435;&#x442;&#x43E;&#x434;&#x44B; &#x432; Ruby, &#x43F;&#x43E;&#x447;&#x435;&#x43C;&#x443; &#x431;&#x43B;&#x43E;&#x43A; &#x44F;&#x432;&#x43B;&#x44F;&#x435;&#x442;&#x441;&#x44F; &#x437;&#x430;&#x43C;&#x44B;&#x43A;&#x430;&#x43D;&#x438;&#x435;&#x43C;, &#x43A;&#x430;&#x43A; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x443;&#x44E;&#x442;&#x441;&#x44F; &#x431;&#x43B;&#x43E;&#x43A;&#x438;.
+    <summary>Что общего и чем отличаются блоки и методы в Ruby, почему блок является замыканием, как используются блоки.
 </summary>
   </entry>
 </feed>
