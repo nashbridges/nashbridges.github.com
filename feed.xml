@@ -4,11 +4,23 @@
   <id>http://nashbridges.me/</id>
   <link href="http://nashbridges.me/"/>
   <link href="http://nashbridges.me/feed.xml" rel="self"/>
-  <updated>2011-08-28T00:00:00+03:00</updated>
+  <updated>2012-05-28T00:00:00+03:00</updated>
   <author>
     <name>Andriy Malyshko</name>
     <email>mail@nashbridges.me</email>
   </author>
+  <entry>
+    <title>Установка Ruby on Rails на Windows</title>
+    <link rel="alternate" href="http://nashbridges.me/ruby-windows-bootstrap"/>
+    <id>http://nashbridges.me/ruby-windows-bootstrap</id>
+    <published>2012-05-28T00:00:00+03:00</published>
+    <updated>2012-05-28T00:00:00+03:00</updated>
+    <author>
+      <name>Andriy Malyshko</name>
+    </author>
+    <summary>Простое разворачивание полноценного linux окружения на Windows платформе
+</summary>
+  </entry>
   <entry>
     <title>Введение в объектно-ориентированный Ruby</title>
     <link rel="alternate" href="http://nashbridges.me/introducing-ruby-oop"/>

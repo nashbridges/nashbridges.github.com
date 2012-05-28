@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="no-js" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Установка Ruby on Rails на Windows</title>
+<meta content="Простое разворачивание полноценного linux окружения на Windows платформе
+" name="description">
+<meta content="2011, Andriy Malyshko, http://nashbridges.me" name="author">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="/favicon.ico" rel="shortcut icon">
+<link href="/stylesheets/site.css" rel="stylesheet">
+<link href="/feed.xml" rel="alternate" title="Лента новостей" type="application/atom+xml">
+<link href="http://nashbridges.me/ruby-windows-bootstrap" rel="canonical">
+<script src="http://yandex.st/modernizr/1.7/modernizr.min.js"></script>
+</head>
+<body>
+<div class="page-container">
+<header><h1>Ruby и <dfn title="точка">.</dfn>
+</h1>
+<nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav></header><article><h1>Установка Ruby on Rails на Windows</h1>
+<section class="metadata"><p><span class="faded">сложность материала: </span>для начинающих</p>
+<span class="faded">теги: </span><ul class="tags">
+<li><a rel="tag" href="/tag/ssh">SSH</a></li>
+<li><a rel="tag" href="/tag/git">Git</a></li>
+<li><a rel="tag" href="/tag/linux">Linux</a></li>
+</ul></section><nav class="table-of-contents"><ul>
+<li><a href="#why-so-complex">Почему так сложно</a></li>
+<li><ul>
+<li><a href="#why-linux">Почему Ubuntu (Linux)?</a></li>
+<li><a href="#why-windows">Почему Windows?</a></li>
+</ul></li>
+<li><a href="#up-and-running-with-vagrant">Запуск сервера с помощью Vagrant</a></li>
+<li><ul>
+<li><a href="#virtualbox-and-vagrant">VirtualBox и Vagrant</a></li>
+<li><a href="#putty">PuTTY</a></li>
+<li><a href="#first-ror-project">Первый проект Ruby on Rails</a></li>
+<li><a href="#git-setup">Настройка Git</a></li>
+<li><a href="#installing-software">Установка программ</a></li>
+</ul></li>
+<li><a href="#short-linux-faq">Что сразу понадобится в Linux</a></li>
+<li><ul>
+<li><a href="#bash-autocomplete">Автодополнение в консоли</a></li>
+<li><a href="#using-file-system">Манипуляции с файловой системой</a></li>
+<li><a href="#console-editors">Редактирование файлов</a></li>
+<li><a href="#links">Полезные ссылки</a></li>
+</ul></li>
+</ul></nav><p>Вопреки SEO-шному заголовку, статья затрагивает более обширную тему: разворачивание
+и настройку полноценного <a href="http://www.ubuntu.com/business/server/overview">Ubuntu сервера</a>, на котором будут
+запускаться все ваши Ruby приложения (в том числе Ruby on Rails), устанавливаться
+джемы и дополнительная инфраструктура (например, базы данных), без которой
+сложно представить современное веб-приложение.</p>
+
+<p>При этом, благодаря тому, что сервер будет работать в отдельной виртуальной
+машине, вам не придется отказываться от родной Windows, освоенного вдоль и поперек
+Notepad++ и обожаемого Дьябло 3.</p>
+
+<section><h2 id="why-so-complex">Почему так сложно</h2>
+  <section><h3 id="why-linux">Почему Ubuntu (Linux)?</h3>
+
+    <p>Читатель, уже немного знакомый с Ruby, наверняка спросит «а как же
+<a href="http://rubyinstaller.org/">RubyInstaller</a>?»</p>
+
+    <p>Без сомнения, простые инсталляторы вроде <a href="http://railsinstaller.org/">RailsInstaller</a>
+позволяют поиграться с irb и запустить свой первый Магазин-на-Рельсах практически мгновенно.
+Если закрыть глаза на то, что консоль Windows не способна отображать цвета, а вместо
+кириллицы выводит знаки вопроса, и что некоторые джемы работают через пень-колоду, это
+неплохой вариант для любопытствующего.</p>
+
+    <p>Другое дело, если вы всерьез намереваетесь посвятить себя веб-разработке. Рано или поздно
+придется столкнуться с выкладкой приложения на рабочий сервер, которые — сюрприз! — поголовно
+работают на Ubuntu/Debian и прочих линуксах. Поэтому в ваших же интересах, чтобы эта встреча
+случилась <em>рано</em>. Хотя Rails разработчик не обязан быть админом, на практике выходит, что
+настройкой сервера и поднятием Rails окружения занимается именно он. И уж если на то пошло,
+нельзя написать эффективное приложение, не понимая, как устроена операционная система, в
+которой оно запускается.</p>
+
+    <p>Если вы верстаете под Ruby on Rails, крайне важно иметь идентичное с остальной командой
+окружение. Поверьте, когда разработчик в разгар сдачи работы заказчику добавляет в проект
+новый джем, который не устанавливается на вашей машине, а вам еще переверстывать полмакета, но
+без злополучного джема даже сервер не запустить — это очень неприятно и для вас, и для разработчика,
+которому придется эту проблему решать. Имея же у себя на машине
+linux-based сервер, вы можете рассчитывать на то, что всё, запускающееся «у них»,
+гарантированно установится и запустится у вас.</p>
+  </section><section><h3 id="why-windows">Почему Windows?</h3>
+
+    <div class="with-notes">
+      <p>Конечно, не стоит тут же сносить под корень Windows в надежде, что прогрессивные десктопные
+дистрибутивы, вроде Ubuntu или Linux Mint, смогут заменить годами настраиваемую под себя
+систему и парк привычных приложений. К сожалению, даже свежие версии Ubuntu приходится
+«допиливать напильником» (особенно это касается установок на ноутбуки). Постигая тонкости
+Linux философии и сражаясь с аппаратными и интерфейсными проблемами, вы рискуете потерять
+интерес к тому, из-за чего всё началось,— Ruby.</p>
+      <aside><p>Mac OS X — совершенно иная история, и если у вас есть деньги
+  на <a href="http://www.apple.com/macbookpro/">железо от Apple</a>, берите, не раздумывая.</p>
+      </aside>
+</div>
+
+    <p>Именно поэтому вариант с виртуальной машиной представляется наиболее разумным: вы ничем не
+жертвуете, не рискуете потерять информацию и продолжаете использовать в работе знакомые
+инструменты.</p>
+  </section></section><section><h2 id="up-and-running-with-vagrant">Запуск сервера с помощью Vagrant</h2>
+
+  <p>Давайте вначале разберемся, к чему мы в итоге должны прийти. Наша цель — установка и настройка
+виртуальной машины, внутри которой будет крутиться серверный Linux дистрибутив
+(конкретнее, Ubuntu 12.04 Server).</p>
+
+  <p>На сервере будет расшарена папка, поэтому все сохраненные в ней файлы будут
+одновременно доступны и для редактирования в Windows, и для запуска интерпретатором
+Ruby в Linux.</p>
+
+  <p>Для управления сервером будет использоваться удаленный доступ через SSH с помощью клиента PuTTY.
+Визуально консоль PuTTY ничем не будет отличаться от родной командной строки Windows, но
+все команды, конечно же, будут исполняться на стороне сервера, а значит, придется изучить
+несколько расхожих, специфичных для Linux, команд.</p>
+
+  <p>Наконец, чтобы видеть результаты работы, порт 3000 на сервере (который по умолчанию использует
+Rails) доступен в Windows под тем же номером. Таким образом, зайдя
+в браузере по локальному адресу http://127.0.0.1:3000, вы на самом деле будете
+обращаться к приложению, запущенному в этот момент на сервере в виртуальной машине.</p>
+
+  <p>Выглядит это примерно так:</p>
+
+  <p class="with-image"><img src="/images/ruby-windows-bootstrap/vm.png" alt="Ubuntu server в виртуальной машине"></p>
+
+  <section><h3 id="virtualbox-and-vagrant">VirtualBox и Vagrant</h3>
+
+    <p>А теперь приятная новость: вам не придется самостоятельно создавать виртуальную машину
+и устанавливать в ней Ubuntu сервер, достаточно будет скачать уже готовый образ и запустить
+его.</p>
+
+    <ol>
+<li>Копия виртуальной машины будет работать под управлением <a href="http://ru.wikipedia.org/wiki/VirtualBox">VirtualBox</a>, поэтому для начала
+нужно убедиться, что у вас установлена версия не ниже 4.1 или <a href="https://www.virtualbox.org/wiki/Downloads">установить ее</a>.</li>
+      <li>Следующий шаг — установка консольной программы <a href="http://downloads.vagrantup.com/tags/v1.0.3">Vagrant</a>. Он (Vagrant) займется
+распаковкой образа виртуальной машины, будет управлять ее запуском и остановкой, а также
+позволит выполнить тонкую настройку с помощью файла <code>Vagrantfile</code>.
+Собственно, вам никто не запрещает делать запуск и настройку вручную, Vagrant — просто удобная
+оболочка для управления VirtualBox.</li>
+      <li>Скачиваете на жесткий диск т. н. <a href="http://clck.ru/d/vq6bX_RT14xu0">бокс</a> (box), который подготовил я. Vagrant box —
+не что иное, как архив с образом уже созданной виртуальной машины.</li>
+      <li>Включение бокса в список доступных Vagrant'у. Эта операция выполняется единожды (если
+быть точнее, каждый раз, когда вы скачиваете новый бокс). Для этого нужно в консоли (командной строке)
+Windows набрать <code>vagrant box add ruby path\to\box</code>. Ruby — произвольное имя, которое вы даете
+боксу, затем идет полный путь до ранее загруженного вами файла.</li>
+      <li>Поскольку вам часто придется открывать консоль с нужной текущей папкой, это удобнее
+делать прямо из проводника через контекстное меню папки. Для этого нужно добавить в него <a href="http://superuser.com/a/98784/119457">пункт
+«Открыть консоль здесь»</a>.</li>
+      <li>Создаете папку, в которой будут храниться ваши Rails проекты (содержимое этой папки будет
+доступно серверу в запущенной виртуальной машине). Находясь в этой папке, выполняете в консоли
+<code>vagrant init ruby</code>. Vagrant создаст в папке шаблонный файл настроек <code>Vagrantfile</code>, его пока не
+трогаем.</li>
+      <li>Первый запуск виртуальной машины. Продолжая находиться в папке для будущих проектов, в консоли
+выполняете <code>vagrant up</code>. В этот момент Vagrant проверяет, имеется ли <em>связанная с этой папкой</em>
+виртуальная машина, и если нет (а так оно и есть), то клонирует базовый бокс (которому вы дали имя
+ruby) и впоследствии будет запускать именно копию. Такой подход дает возможность инициализировать несколько независимых друг от друга
+(и по-разному настроенных) виртуальных машин. Но самое главное, пожалуй, это то, что вы можете
+без опаски исследовать и настраивать сервер: любые фатальные действия легко исправить, просто
+удалив «испорченную» машину и создав ее заново из базового бокса.</li>
+    </ol>
+<p>Второй и последующий запуски выполняются аналогично с помощью <code>vagrant up</code>, но они происходят намного
+быстрее (используется уже скопированная виртуальная машина).</p>
+
+    <p>Учтите, что запущенная машина забирает под себя
+часть ресурсов компьютера, в частности около 400Мб оперативной памяти. Чтобы ее остановить,
+используйте команду <code>vagrant halt</code>.</p>
+  </section><section><h3 id="putty">PuTTY</h3>
+
+    <p>На запущенном вами сервере уже создан один пользователь c именем vagrant. Чтобы действовать
+от его имени и управлять сервером, вы будете использовать популярный SSH клиент — PuTTY.</p>
+
+    <p>Я выполнил все необходимые настройки клиента, вам остается только <a href="http://clck.ru/d/-Cf8cPVg14pph">скачать его</a>.
+Распакуйте архив в любую папку и запустите файл <code>ruby-bootstrap.reg</code>, чтобы импортировать
+настройки в реестр.</p>
+
+    <div class="with-notes">
+      <p>После этого достаточно запустить <code>putty.exe</code>, загрузить сессию ruby-bootstrap и нажать Open.
+Вы будете успешно авторизированы на сервере как пользователь vagrant и можете выполнять
+команды. Например, запустить интерактивный интерпретатор Ruby:</p>
+      <aside><p>Чтобы не загружать сессию каждый раз, можно создать ярлык для <code>putty.exe</code>, <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/faq.html#faq-startsess">указав</a>
+  <code>-load "ruby-bootstrap"</code> в командной строке</p>
+      </aside>
+</div>
+
+    <pre><code class="slush_poppies">vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ irb
+<span class="Number">1.9</span>.3p194 :<span class="Number">001</span> <span class="Operators">&gt;</span> <span class="Number">1</span> <span class="Operators">+</span> <span class="Number">1</span>
+ =&gt; <span class="Number">2</span>
+</code></pre>
+
+    <p>Для нормального отображения текста в консоли очень рекомендую скачать и установить шрифт
+<a href="http://dejavu-fonts.org/wiki/Download">DejaVu Sans Mono</a>.</p>
+  </section><section><h3 id="first-ror-project">Первый проект Ruby on Rails</h3>
+
+    <p>На сервере расшаренной является корневая папка <code>vagrant</code>, поэтому все файлы, которые вы хотите
+редактировать «снаружи», нужно создавать там. Последовательность для создания тестового проекта
+Ruby on Rails может выглядеть так:</p>
+
+    <div class="with-notes">
+      <pre><code class="slush_poppies">vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>~</span>$ cd <span class="Operators">/</span>vagrant<span class="Operators">/</span>
+vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>vagrant$ rails <span class="Keyword">new</span> my<span class="Operators">-</span>project
+vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>vagrant$ cd my<span class="Operators">-</span>project
+vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>vagrant<span class="Operators">/</span>my<span class="Operators">-</span>project$ rails generate scaffold <span class="Variable">User</span> name
+vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>vagrant<span class="Operators">/</span>my<span class="Operators">-</span>project$ rake db<span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>migrate</span>
+vagrant<span class="Variable"><span class="Variable">@</span>precise32</span><span class="UserDefinedConstant"><span class="UserDefinedConstant">:</span>/</span>vagrant<span class="Operators">/</span>my<span class="Operators">-</span>project$ rails server
+</code></pre>
+      <aside><p>В первый раз, конечно, придется еще и установить сам джем командой <code>gem install rails</code></p>
+      </aside>
+</div>
+
+    <p>После этого по адресу http://127.0.0.1:3000/users должна быть видна шаблонная страница для
+просмотра и редактирования пользователей, а в папке, где была выполнена команда <code>vagrant up</code>,
+должна появиться подпапка <code>my-project</code>.</p>
+  </section><section><h3 id="git-setup">Настройка Git</h3>
+
+    <p><em>TODO</em></p>
+  </section><section><h3 id="installing-software">Установка программ</h3>
+
+    <p><em>TODO</em></p>
+  </section></section><section><h2 id="short-linux-faq">Что сразу понадобится в Linux</h2>
+
+  <section><h3 id="bash-autocomplete">Автодополнение в консоли</h3>
+
+    <p><em>TODO</em></p>
+  </section><section><h3 id="using-file-system">Манипуляции с файловой системой</h3>
+
+    <p><em>TODO</em></p>
+  </section><section><h3 id="console-editors">Редактирование файлов</h3>
+
+    <p><em>TODO</em></p>
+  </section><section><h3 id="links">Полезные ссылки</h3>
+
+    <p><em>TODO</em></p>
+  </section></section></article><footer><hr>
+<section class="feedback"><div class="recommend">Порекомендуйте этот материал, если он вам понравился: <div class="google"><div class="g-plusone" data-lang="ru"></div></div>
+</div>
+<p>Если вы нашли в статье ошибку или опечатку, пожалуйста, сообщите об этом на<strong> you-are-wrong@nashbridges.me</strong></p></section><nav class="menu"><ul>
+<li><a href="/">все статьи</a></li>
+<li><a href="/tags">все теги</a></li>
+<li><a href="/about">зачем и для кого</a></li>
+<li class="atom-feed"><a href="/feed.xml">rss</a></li>
+</ul></nav><section class="signature"><p><a href="/author">Андрей Малышко</a>, 28.05.2012</p></section></footer>
+</div>
+<script>var _gaq=[['_setAccount','UA-24784248-1'],['_trackPageview']];
+(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+s.parentNode.insertBefore(g,s)}(document,'script'));</script><script src="https://apis.google.com/js/plusone.js"></script>
+</body>
+</html>
