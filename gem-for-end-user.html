@@ -487,17 +487,18 @@ Rubygems должны принять решение, какую версию gem
       <li>
 <code>gem 'prawn', '~&gt; 0.11.1'</code> — этот оптимистичный сперматозоид (который западные
  товарищи окрестили twiddlewakka)</a>) является просто сокращенной записью
- предыдущего выражения.</li>
+ предыдущего выражения. Другими словами: второе, если считать справа, число фиксируется, его
+ менять нельзя.</li>
     </ul>
-<p>Когда версия указывается без третьего числа, Rubygems подставляют туда ноль.
-Таким образом, вызов метода</p>
+<p>Когда версия указывается без третьего числа, Rubygems опять фиксируют второе справа число, т. е.
+  первое. Таким образом, вызов метода</p>
 
     <pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>~&gt; 0.14<span class="String">'</span></span>
 </code></pre>
 
     <p>делает то же, что и</p>
 
-    <pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&gt;= 0.14.0<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&lt; 0.15.0<span class="String">'</span></span>
+    <pre><code class="slush_poppies">gem <span class="String"><span class="String">'</span>prawn<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&gt;= 0.14.0<span class="String">'</span></span>, <span class="String"><span class="String">'</span>&lt; 1.0<span class="String">'</span></span>
 </code></pre>
 
     <p>Если gem был активирован, попытка активации другой версии этого же gem'а
